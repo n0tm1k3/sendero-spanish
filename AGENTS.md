@@ -42,7 +42,9 @@ D(id, '¿Dónde vives?', 'Where do you live?')                                  
 ### Runs in two places
 
 - **On claude.ai** (the published artifact): progress syncs to the learner's account (`db` + `user` capabilities), and Claude writes the daily story and writing feedback (`sample` capability), all through `window.claude.use(...)`.
-- **Anywhere else** (a local server, GitHub Pages): `window.claude` is missing, so progress stays in the browser's localStorage and the Claude features show a message instead. Keep both paths working.
+- **Anywhere else** (a local server, GitHub Pages, the installed offline app): `window.claude` is missing, so progress stays in the browser's localStorage and the Claude features show a message instead. The page then registers `sw.js` for offline use. Keep both paths working.
+- **Progress files** (`mergeState`) move progress between copies. If you add a field to the saved state `S`, add it to `DEFAULT()` and decide how `mergeState` combines it.
+- **Offline cache:** bump `VERSION` in `sw.js` whenever an audio file changes, or installed copies keep the old clips. New files the page needs offline go in `CORE` or `AUDIO` there.
 
 ## Checks
 

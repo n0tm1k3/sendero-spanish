@@ -14,18 +14,25 @@ It's a personal project. Suggestions and pull requests from people and AI assist
 - **Speak & write:** shadowing practice, and writing prompts with corrections from Claude (on claude.ai only).
 - **Method tab:** each mechanic with the study behind it.
 
-## Run it
+## Use it offline
+
+The live copy at https://n0tm1k3.github.io/sendero-spanish/ installs as an app (in Chrome, Edge or Brave: the install icon in the address bar, or the browser menu). Once installed it works with no internet, audio included. Progress is saved in the browser on that computer.
+
+To move progress between copies (claude.ai, the installed app, another computer), use **Save progress file** and **Load progress file** on the Today tab. Loading merges: for each card, the most recent review wins.
+
+The Claude-powered features (daily story, writing feedback, account sync) only work in the version published on claude.ai.
+
+## Run it locally
 
 ```bash
 python3 -m http.server
 # open http://localhost:8000
 ```
 
-Progress is saved in your browser. The Claude-powered features (daily story, writing feedback, account sync) only work in the version published on claude.ai.
-
 ## Files
 
 - `index.html`: the whole app
 - `audio-es.json`, `audio-es-2.json`: word and sentence clips (Kokoro TTS, three voices)
 - `audio-es-stories.json`: story narration, loaded on first use
+- `manifest.webmanifest`, `sw.js`, `icon-*.png`: makes the page installable and offline-capable
 - `tools/`: content checks, audio generation, browser smoke test
