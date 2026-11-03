@@ -2516,8 +2516,87 @@ document.addEventListener('click', e => {
   if (b.dataset.addlisten) { addMin('listen', +b.dataset.addlisten); bumpStreak(); save(); render(); const l = $('#listen'); if (l) l.scrollIntoView({ block: 'nearest' }); return; }
   if (b.id === 'gen-story') return genStory(false);
   if (b.id === 'gen-story2') { openDaily = false; return genStory(true); }
-  if (b.id === 'open-daily') { openDaily = true; render(); window.scrollToMethodInvocationException: 
-Line |
-   2 |  … adAllText('index.html'); [Console]::Write($t.Substring(225000,10277))
-     |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     | Exception calling "Substring" with "2" argument(s): "Index and length must refer to a location within the string. (Parameter 'length')"
+  if (b.id === 'open-daily') { openDaily = true; render(); window.scrollTo(0, 0); return; }
+  if (b.dataset.dword !== undefined) {
+    const w = b.dataset.dword, n = normEs(w), d = S.story.data; const sent = sentenceWith(d.text, w);
+    $('#gloss').innerHTML = glossBar(w, glossFor(n, dailyNew()), sent, d.title, sampleState === 'ok'); speak(w); return;
+  }
+  if (b.dataset.save !== undefined) {
+    saveWord(b.dataset.save, b.dataset.lemma, b.dataset.en, b.dataset.sent, b.dataset.from);
+    b.outerHTML = '<span class="tag">Added: it will come up in your cards</span>'; return;
+  }
+  if (b.dataset.lookup !== undefined) return lookupWord(b.dataset.lookup, b.dataset.sent);
+  if (b.dataset.dq !== undefined) { const q = S.story.data.questions[+b.dataset.dq]; b.classList.add(+b.dataset.so === +q.answer ? 'right' : 'wrong'); return; }
+  if (b.id === 'finish-daily') { S.story.read = true; addXP(20); save(); render(); return; }
+  if (b.dataset.tile) { const id = b.dataset.tile; speak(ITEM[id].es); gMsg = ''; if (gSel.includes(id)) gSel = gSel.filter(x => x !== id); else if (gSel.length < 4) gSel.push(id); render(); return; }
+  if (b.id === 'g-shuffle') { const g = todayGame(); if (g) { shuffle(g.p.tiles); save(); } render(); return; }
+  if (b.id === 'g-clear') { gSel = []; render(); return; }
+  if (b.id === 'g-submit') return submitGroup();
+  if (b.id === 'sprint-go') { if (sprint && sprint.timer) clearInterval(sprint.timer); return startSprint(); }
+  if (b.id === 'sprint-close') { sprint = null; render(); return; }
+  if (b.dataset.sp !== undefined) return sprintAnswer(+b.dataset.sp);
+  if (b.dataset.prac) { prac = b.dataset.prac; render(); return; }
+  if (b.id === 'shadow-go') return startShadow();
+  if (b.id === 'shadow-close') { shadow = null; render(); return; }
+  if (b.dataset.shadow) return shadowRate(b.dataset.shadow === 'ok');
+  if (b.id === 'w-go') return getFeedback();
+  if (b.id === 'w-next') { const ps = writePrompts(); const cur = ps.findIndex(x => x[1] === curPrompt()); wPick = (cur + 1) % ps.length; wRes = null; wErr = ''; render(); return; }
+  if (b.dataset.wacc) { const ta = $('#w-text'); if (ta) { const p = ta.selectionStart ?? ta.value.length; ta.value = ta.value.slice(0, p) + b.dataset.wacc + ta.value.slice(ta.selectionEnd ?? p); wDraft = ta.value; ta.focus(); ta.setSelectionRange(p + 1, p + 1); } return; }
+  if (b.dataset.go) { view = b.dataset.go; render(); return; }
+  if (b.id === 'start') return startSession();
+  if (b.id === 'more') return startSession(true);
+  if (b.id === 'quit' || b.id === 'done') { sess = null; render(); return; }
+  if (b.id === 'next') return next();
+  if (b.id === 'idk') return answer('', -1);
+  if (b.dataset.opt !== undefined && sess && sess.phase === 'ask') return answer('', +b.dataset.opt);
+  if (b.dataset.acc) { const i = $('#ans-in'); if (i) { const p = i.selectionStart ?? i.value.length; i.value = i.value.slice(0, p) + b.dataset.acc + i.value.slice(i.selectionEnd ?? p); i.focus(); i.setSelectionRange(p + 1, p + 1); } return; }
+  if (b.dataset.focus !== undefined) { const n = +b.dataset.focus; S.focus = S.focus === n ? null : n; save(); render(); return; }
+  if (b.dataset.story) { openStory = STORIES.find(s => s.id === b.dataset.story); render(); window.scrollTo(0, 0); return; }
+  if (b.id === 'back') { openStory = null; openDaily = false; render(); return; }
+  if (b.id === 'show-en') { const p = $('#story-en'); p.hidden = !p.hidden; b.textContent = p.hidden ? 'Show English' : 'Hide English'; return; }
+  if (b.dataset.word !== undefined) {
+    const w = b.dataset.word, n = normEs(w), s0 = openStory; const ex = {}; Object.entries(s0.gl || {}).forEach(([k, v]) => { ex[k] = { en: v, lemma: k }; });
+    const g = glossFor(n, ex) || (s0.free.includes(n) ? { en: 'name or cognate', known: true } : null);
+    $('#gloss').innerHTML = glossBar(w, g, sentenceWith(s0.text, w), s0.title, false); speak(w); return;
+  }
+  if (b.dataset.sq !== undefined) { const q = openStory.qs[+b.dataset.sq]; const ok = +b.dataset.so === q[2]; b.classList.add(ok ? 'right' : 'wrong'); return; }
+  if (b.id === 'finish-story') { S.read[openStory.id] = true; addXP(20); save(); render(); return; }
+  if (b.dataset.item) {
+    const it = ITEM[b.dataset.item]; const cards = it.kind === 'w' ? [it.id + ':r', it.id + ':p'] : [it.id + ':x'];
+    const label = it.kind === 'w' ? `${it.es} = ${it.en[0]}` : it.kind === 'd' ? it.say : it.kind === 'c' ? it.q.replace('___', it.a[0]) : it.q;
+    $('#g-detail').innerHTML = `<p class="story-name" lang="es">${esc(label)}</p>${cards.map(cid => { const x = st(cid); const nm = cid.endsWith(':p') ? 'English → Spanish' : cid.endsWith(':r') ? 'Spanish → English' : 'Practice'; return `<p class="small"><b>${nm}:</b> ${x ? `stability ${x.s < 1 ? x.s.toFixed(2) : x.s.toFixed(1)} days · difficulty ${x.d.toFixed(1)}/10 · recall now ${Math.round(FSRS.Rnow(x, now()) * 100)}% · next ${relTime(x.due).replace('in -', '')}` : (cid.endsWith(':p') ? 'unlocks after the Spanish → English card survives 3 days' : 'not started')}</p>`; }).join('')}`;
+    return;
+  }
+  if (b.id === 'backup') { const txt = JSON.stringify(S); const box = $('#set-extra'); box.innerHTML = `<textarea id="bk" rows="3" readonly>${esc(txt)}</textarea><p class="small">Copied. Keep this text somewhere safe.</p>`; try { navigator.clipboard.writeText(txt).catch(() => $('#bk').select()); } catch (er) { $('#bk').select(); } return; }
+  if (b.id === 'restore') { $('#set-extra').innerHTML = `<textarea id="rs" rows="3" placeholder="Paste a backup here"></textarea><button class="btn sm" id="rs-go">Restore</button>`; return; }
+  if (b.id === 'rs-go') { try { const o = JSON.parse($('#rs').value); if (!o.cards) throw 0; S = Object.assign(DEFAULT(), o); migrate(); registerMine(); save(); render(); } catch (er) { $('#set-extra').insertAdjacentHTML('beforeend', '<p class="note warn">That text isn’t a Sendero backup.</p>'); } return; }
+  if (b.id === 'reset') { $('#set-extra').innerHTML = `<p class="note warn">This erases every card, your XP and your streak. It can’t be undone.</p><button class="btn danger sm" id="reset-go">Erase everything</button>`; return; }
+  if (b.id === 'reset-go') { S = DEFAULT(); save(); render(); return; }
+});
+document.addEventListener('submit', e => { if (e.target.id === 'ans') { e.preventDefault(); if (sess && sess.phase === 'ask') answer($('#ans-in').value, -1); } });
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.id === 's-ret') { S.settings.retention = +t.value; save(); render(); }
+  if (t.id === 's-size') { S.settings.session = +t.value; save(); render(); }
+  if (t.id === 's-goal') { S.settings.goal = +t.value; save(); render(); }
+  if (t.id === 's-new') { S.settings.newPerDay = +t.value; save(); render(); }
+  if (t.id === 'file-in' && t.files && t.files[0]) { loadProgressFile(t.files[0]); t.value = ''; return; }
+  if (t.id === 's-daily') { S.settings.daily = +t.value; Object.assign(S.settings, PRESET[+t.value]); save(); render(); }
+  if (t.id === 'shadow-hide') { shadowHide = t.checked; const el = $('#shadow-es'); if (el) el.classList.toggle('blur', shadowHide); }
+});
+document.addEventListener('input', e => { if (e.target.id === 'w-text') { wDraft = e.target.value; return; } if (e.target.id === 's-ret') { const o = e.target.previousElementSibling.querySelector('output'); if (o) o.textContent = Math.round(e.target.value * 100) + '%'; } });
+document.addEventListener('keydown', e => {
+  if (sprint && !sprint.done && view === 'play' && /^[1-4]$/.test(e.key)) { sprintAnswer(+e.key - 1); return; }
+  if (!sess) return;
+  if (sess.phase === 'show' && e.key === 'Enter' && e.target.id !== 'next') { e.preventDefault(); next(); return; }
+  if (sess.phase === 'ask' && /^[1-9]$/.test(e.key) && document.activeElement.tagName !== 'INPUT') {
+    const b = document.querySelector(`[data-opt="${+e.key - 1}"]`); if (b) b.click();
+  }
+});
+const h = (location.hash || '').slice(1); if (TABS.some(([id]) => id === h)) view = h;
+render();
+})();
+
+</script>
+
+</body></html>
