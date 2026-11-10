@@ -316,7 +316,9 @@ textarea#w-text:focus { border-color: var(--accent); outline: none; }
 .q-title span { font: 500 0.88rem var(--q-pixel); color: var(--q-dim); }
 #q-stage { position: relative; margin: 0 auto; max-width: 100%; }
 .q-mkey kbd { font: 0.72rem var(--mono); border: 1px solid var(--q-rim2); border-radius: 4px; padding: 0 4px; margin-left: 4px; }
-@media (hover: none), (pointer: coarse) { .q-mkey { display: none; } }
+@media (hover: none), (pointer: coarse) { .q-tright kbd { display: none; } }
+.q-tright kbd { font: 0.72rem var(--mono); border: 1px solid var(--q-rim2); border-radius: 4px; padding: 0 4px; margin-left: 4px; }
+@media (min-width: 640px) { html.q-lock, html.q-lock body { overflow: hidden; height: 100%; } html.q-lock #app { padding-block-end: 0; } html.q-lock .foot { display: none; } }
 #q-game { position: relative; width: 100%; aspect-ratio: 15 / 11; border-radius: 8px; overflow: hidden; border: 3px solid var(--q-rim); box-shadow: 0 0 0 3px var(--q-win-b); background: #000; }
 #q-world { width: 100%; height: 100%; display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
 #q-hud { position: absolute; top: 6px; left: 6px; right: 6px; display: flex; justify-content: space-between; gap: 6px; pointer-events: none; }
@@ -352,6 +354,7 @@ textarea#w-text:focus { border-color: var(--accent); outline: none; }
 .q-nx { font: 700 1rem var(--q-pixel); color: var(--q-text); background: rgba(255,255,255,.08); border: 2px solid var(--q-rim2); border-radius: 6px; padding: 7px 14px; cursor: pointer; }
 .q-nx.primary { background: var(--q-gold); color: #2a1c00; border-color: #fff2b8; }
 .q-nx:hover { filter: brightness(1.12); }
+.qx kbd { font: 0.72rem var(--mono); border: 1px solid var(--q-rim2); border-radius: 4px; padding: 0 4px; margin-left: 4px; }
 .q-link { background: none; border: 0; color: var(--q-dim); text-decoration: underline; font: inherit; font-size: 0.88rem; cursor: pointer; align-self: flex-start; padding: 0; }
 .q-choices, .q-opts { display: grid; gap: 6px; }
 .q-opts { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
@@ -464,7 +467,7 @@ textarea#w-text:focus { border-color: var(--accent); outline: none; }
 .q-hearts { color: #ff8fa3; letter-spacing: 1px; }
 @media (max-width: 639px) { #q-goal { font-size: 0.72rem; } .q-hud-l, .q-hud-r { font-size: 0.74rem; } }
 @media (min-width: 640px) { #q-dlg { position: absolute; left: 10px; right: 10px; bottom: 10px; max-height: calc(100% - 64px); overflow-y: auto; z-index: 5; margin: 0; } }
-@media (hover: hover) and (pointer: fine) { #q-pad { display: none; } }
+@media (any-pointer: fine) { #q-pad { display: none; } }
 @media (hover: none), (pointer: coarse) { .q-keys { display: none; } }
 @media (prefers-reduced-motion: reduce) { .qx *, .qx *::before { animation: none !important; transition: none !important; } }
 </style>
@@ -1741,6 +1744,7 @@ const TABS = [['today', 'Today'], ['path', 'Path'], ['quest', 'Quest'], ['read',
 function render() {
   const app = $('#app');
   if (view === 'quest') questReturn = false;
+  document.documentElement.classList.toggle('q-lock', view === 'quest' && !sess);
   if (sess) { app.innerHTML = renderSession(); afterSession(); return; }
   const k = dayKey();
   app.innerHTML = `
@@ -1753,7 +1757,7 @@ function render() {
     </div>
   </header>
   <nav class="tabs" role="tablist">${TABS.map(([id, l]) => `<button role="tab" aria-selected="${view === id}" data-tab="${id}">${l}</button>`).join('')}</nav>
-  ${questReturn && view !== 'quest' ? '<div class="q-return"><button class="btn primary sm" data-tab="quest">← Back to Sendero Quest</button><span class="small">Time here counts toward today’s plan as usual.</span></div>' : ''}
+  ${questReturn && view !== 'quest' ? '<div class="q-return"><button class="btn primary sm" data-tab="quest">← Back to Sendero Quest <span class="small">(Esc)</span></button><span class="small">Time here counts toward today’s plan as usual.</span></div>' : ''}
   <main id="view">${({ today: vToday, path: vPath, quest: () => '<div id="qmount"></div>', read: vRead, play: vPlay, practice: vPractice, garden: vGarden, method: vMethod })[view]()}</main>
   <footer class="foot"><span id="sync"></span></footer>`;
   paintSync();
@@ -2759,6 +2763,7 @@ document.addEventListener('change', e => {
 });
 document.addEventListener('input', e => { if (e.target.id === 'w-text') { wDraft = e.target.value; return; } if (e.target.id === 's-ret') { const o = e.target.previousElementSibling.querySelector('output'); if (o) o.textContent = Math.round(e.target.value * 100) + '%'; } });
 document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !sess && questReturn && view !== 'quest' && !/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) { e.preventDefault(); e.stopImmediatePropagation(); view = 'quest'; openStory = null; openDaily = false; render(); return; }
   if (sprint && !sprint.done && view === 'play' && /^[1-4]$/.test(e.key)) { sprintAnswer(+e.key - 1); return; }
   if (!sess) return;
   if (sess.phase === 'show' && e.key === 'Enter' && e.target.id !== 'next') { e.preventDefault(); next(); return; }
@@ -3277,8 +3282,23 @@ function interact() {
 }
 function onKey(e) {
   if (view !== 'quest' || sess || !root || !root.isConnected) return;
+  // Esc in a battle: flee before it starts, "I don't know" on a card (even while typing), close the summary at the end.
+  if (mode === 'battle' && bt && e.key === 'Escape') { e.preventDefault(); if (bt.phase === 'intro') endBattle('flee'); else if (bt.phase === 'ask') bAnswer('', -1); else if (bt.phase === 'end') closeBattle(); else bNext(); return; }
   const tag = e.target.tagName; if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-  if (/^Arrow/.test(e.key)) e.preventDefault(); // arrows belong to the game in every mode, never to page scrolling
+  if (/^Arrow/.test(e.key)) e.preventDefault();
+  if (e.key === 'm' && (mode === 'walk' || mode === 'menu')) { musicToggle(); return; }
+  if (mode === 'dialog') {
+    if (/^[1-9]$/.test(e.key)) { const c = qs(`#q-dlg [data-qch="${+e.key - 1}"]`); if (c) { e.preventDefault(); c.click(); } return; }
+    if (e.key === 'r') { const a = qs('#q-dlg .q-say'); if (a) a.click(); return; }
+  }
+  if (mode === 'menu' && /^Arrow/.test(e.key)) {
+    if (!room && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) { const T = ['quests', 'map', 'bag', 'dict', 'memory', 'how']; menuTab = T[(T.indexOf(menuTab) + (e.key === 'ArrowRight' ? 1 : T.length - 1)) % T.length]; renderMenu(); const on = qs(`[data-qtab="${menuTab}"]`); if (on) on.focus({ preventScroll: true }); return; }
+    const all = [...qs('#q-menu').querySelectorAll('button:not([disabled])')].filter(b => !b.dataset.qtab || b.classList.contains('on'));
+    const bs = all.filter(b => !/^q[mr]-close$/.test(b.id)).concat(all.filter(b => /^q[mr]-close$/.test(b.id))); // Close comes last
+    const i = bs.indexOf(document.activeElement); const n = bs[(i + (e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : bs.length - 1) + (i < 0 && e.key !== 'ArrowDown' && e.key !== 'ArrowRight' ? 1 : 0)) % bs.length];
+    if (n) { n.focus({ preventScroll: true }); n.scrollIntoView({ block: 'nearest' }); }
+    return;
+  } // arrows belong to the game in every mode, never to page scrolling
   if (mode === 'title') { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); startFromTitle(); } return; }
   if (mode === 'trans') return;
   if (mode === 'battle') {
@@ -3491,7 +3511,7 @@ function mcOpts(c) {
 const qopts = (o, correct, pick) => `<div class="q-opts">${o.map((t, i) => `<button class="q-opt ${correct === i ? 'ok' : ''} ${pick === i && pick !== correct ? 'no' : ''}" data-qopt="${i}" ${correct >= 0 ? 'disabled' : ''}><kbd>${i + 1}</kbd>${esc(t)}</button>`).join('')}</div>`;
 function tbox(ph, lang) {
   const done = bt.phase === 'show';
-  return `<form id="qb-form" class="q-in" autocomplete="off"><input id="qb-in" lang="${lang}" placeholder="${ph}" autocapitalize="off" spellcheck="false" ${done ? `value="${esc(bt.res.input)}" readonly class="${bt.res.grade}"` : ''}>${done ? '' : '<button class="q-nx primary" type="submit">Atacar ▸</button>'}</form>${!done && lang === 'es' ? `<div class="q-accents">${['á', 'é', 'í', 'ó', 'ú', 'ñ', '¿', '¡'].map(a => `<button type="button" class="q-acc" data-qacc="${a}">${a}</button>`).join('')}</div>` : ''}${done ? '' : '<button class="q-link" id="qb-idk">I don’t know</button>'}`;
+  return `<form id="qb-form" class="q-in" autocomplete="off"><input id="qb-in" lang="${lang}" placeholder="${ph}" autocapitalize="off" spellcheck="false" ${done ? `value="${esc(bt.res.input)}" readonly class="${bt.res.grade}"` : ''}>${done ? '' : '<button class="q-nx primary" type="submit">Atacar ▸</button>'}</form>${!done && lang === 'es' ? `<div class="q-accents">${['á', 'é', 'í', 'ó', 'ú', 'ñ', '¿', '¡'].map(a => `<button type="button" class="q-acc" data-qacc="${a}">${a}</button>`).join('')}</div>` : ''}${done ? '' : '<button class="q-link" id="qb-idk">I don’t know <kbd>Esc</kbd></button>'}`;
 }
 function renderBattle() {
   const B = qs('#q-battle');
@@ -3664,7 +3684,7 @@ function renderMenu() {
       <li><b>Rematches.</b> A beaten boss comes back when five or more words from its town are due. The rematch is a review of exactly what’s fading.</li>
       <li><b>Day and night</b> follow your clock, and people greet you to match: buenos días, buenas tardes, buenas noches.</li>
       <li><b>Losing costs nothing.</b> Missed cards just come back sooner.</li></ul>
-      <p class="q-tip">Controls: arrow keys or WASD to walk, Space or Enter to talk, Esc for this menu. On a phone, use the pad and the A button.</p>`;
+      <p class="q-tip">Controls: arrow keys or WASD to walk, Space or Enter to talk and continue, Esc for this menu (← → switch tabs, ↑ ↓ move, Enter picks). In dialogue, 1–9 choose an answer and R replays the voice. In battle, 1–9 pick an option, Enter attacks and continues, Tab reaches items, and Esc means “I don’t know” (or flees before the fight, or closes the summary). M turns music on or off. In a building’s activity, Esc brings you back. On a phone, use the pad and the A button.</p>`;
   }
   qs('#q-menu').innerHTML = `<div class="q-win q-menuwin"><div class="q-mhead"><h3>Menú</h3><button class="q-nx" id="qm-close">Cerrar ✕</button></div><div class="q-mtabs">${tabs.map(([id, l]) => `<button data-qtab="${id}" class="${menuTab === id ? 'on' : ''}">${l}</button>`).join('')}</div><div class="q-mbody">${body}</div></div>`;
   if (menuTab === 'dict') paintCreatures();
@@ -3722,7 +3742,7 @@ addEventListener('resize', () => { if (view === 'quest') fit(); });
 function mount(host) {
   if (!host) return;
   const first = !root; if (first) build();
-  host.appendChild(root); fit(); setTimeout(fit, 300); if (document.fonts) document.fonts.ready.then(fit);
+  host.appendChild(root); scrollTo(0, 0); fit(); setTimeout(fit, 300); if (document.fonts) document.fonts.ready.then(fit);
   if (mode === 'walk' && !player.moving) { if (!Q().pos) Q().pos = null; placePlayer(); }
   if (bgTown !== Q().town) paintBg();
   if (!flag('intro')) setFlag('visit_' + TOWNS[0].id);
@@ -3885,7 +3905,7 @@ const MUSIC = (() => {
 })();
 const townSong = () => town().id;
 function musicToggle() { const q = Q(); q.musicOn = !q.musicOn; save(); if (q.musicOn) MUSIC.play(mode === 'battle' ? (bt && bt.boss ? 'boss' : 'battle') : townSong()); else MUSIC.stop(); paintMusicBtn(); }
-function paintMusicBtn() { root.querySelectorAll('[data-qmusic]').forEach(b => { b.textContent = Q().musicOn ? '♪ Música: sí' : '♪ Música: no'; b.setAttribute('aria-pressed', Q().musicOn ? 'true' : 'false'); }); }
+function paintMusicBtn() { root.querySelectorAll('[data-qmusic]').forEach(b => { b.innerHTML = (Q().musicOn ? '♪ Música: sí' : '♪ Música: no') + (b.closest('.q-tright') ? ' <kbd>M</kbd>' : ''); b.setAttribute('aria-pressed', Q().musicOn ? 'true' : 'false'); }); }
 document.addEventListener('visibilitychange', () => { if (document.hidden) MUSIC.stop(); else if (root && root.isConnected && view === 'quest' && titleDone) MUSIC.play(mode === 'battle' && bt ? (bt.boss ? 'boss' : 'battle') : townSong()); });
 
 // ---------- people who walk around ----------
