@@ -1,8 +1,8 @@
 // Offline support for the installed app (not used on claude.ai).
 // Bump VERSION whenever an audio file changes, so installed copies fetch the new clips.
-const VERSION = 'sendero-2026-11-02';
+const VERSION = 'sendero-2026-11-10';
 const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
-const AUDIO = ['audio-es.json', 'audio-es-2.json', 'audio-es-stories.json'];
+const AUDIO = ['audio-es.json', 'audio-es-2.json', 'audio-es-stories.json', 'audio-es-quest.json'];
 const FONTS = 'sendero-fonts';
 
 self.addEventListener('install', e => {
