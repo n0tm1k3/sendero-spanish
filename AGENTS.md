@@ -59,7 +59,13 @@ The game runs on the course's own cards: a battle is a review graded exactly lik
 - **Buildings lead into the course.** `DOOR_ROOMS` maps each door to a room in `ROOMS` (stories, today's story, games, shadowing, writing, listening, the plan, the Diccionario). A room hands off to the course with `startBlock`, and a banner on the course page leads back. Every door must have a room.
 - **The Diccionario** records each item the learner has beaten in battle (`S.quest.caught`). Creatures are drawn from the item id and grow with the card's stage, the same stages as the Garden.
 - **Music** is generated with Web Audio (`MUSIC`): an original short loop per town plus battle and boss themes. It starts only after the learner presses Start on the title screen, stops when they leave the tab, and has an on/off switch (`S.quest.musicOn`).
-- `window.senderoQuestDebug` exposes the game's state to browser tests.
+- Friendships: `S.quest.friend[mentorId]` (0–5 hearts). Once a day, talking to a mentor whose unit is ≥30% started adds a heart (`S.quest.fday`); errands add one to each side. 3 hearts plays the mentor's `BONDS` line, 5 hearts a thank-you; both give items.
+- Errands: one a day (`errandToday`, seeded by date) from one met mentor to another, carrying a noun from `CARRY` that the learner has started. The HUD names it in English; the receiver asks in Spanish and the learner picks the right “Tengo …”.
+- Items (`S.quest.bag`, `ITEMS`): café heals 40 HP in battle, pista shows half of each word (a hinted correct answer is graded Hard, never Good), campana starts a battle anywhere if something is due. No item may skip or soften a review beyond that.
+- Rematches: a beaten boss returns when ≥5 cards from its town's units are due and it hasn't been beaten today (`S.quest.rematch`). Win: +50 XP and a pista.
+- Day and night follow the device clock (`dayPart`); mentors greet with buenos días / buenas tardes / buenas noches once a day.
+- Story: after each first boss win, `winPages` adds a scene with El Silencio (`SILENCIO`, one line per town); the final one ends the arc.
+- `window.senderoQuestDebug` exposes the game's state to browser tests (`setHour(h)` fakes the clock).
 
 ## Checks
 

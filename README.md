@@ -10,7 +10,7 @@ It's a personal project. Suggestions and pull requests from people and AI assist
 - **A daily plan** of 30 to 120 minutes, timed by activity, with a phase roadmap measured in hours (A1 ≈ 100 h, A2 ≈ 200 h, B1 ≈ 400 h).
 - **Spaced repetition** with FSRS, difficulty that adapts toward about 85% accuracy, and typed recall rather than just recognition.
 - **Reading:** 14 graded stories, plus a daily story written by Claude to the learner's vocabulary (on claude.ai only). Tap any word to see its meaning and add it to your reviews.
-- **Quest:** the course as a pixel RPG. Seven towns, a mentor for every unit, and a boss guarding each road. Battles in tall grass are your due reviews, on the same cards, so playing counts as studying.
+- **Quest:** the course as a pixel RPG. Seven towns, a mentor for every unit, and a boss guarding each road. Battles in tall grass are your due reviews, on the same cards, so playing counts as studying. Mentors become friends, there is a daily errand, a villain named El Silencio, day and night, and beaten bosses come back when their words fade.
 - **Play:** a daily puzzle where you sort 16 words into four groups, and a 60-second speed round.
 - **Speak & write:** shadowing practice, and writing prompts with corrections from Claude (on claude.ai only).
 - **Method tab:** each mechanic with the study behind it.

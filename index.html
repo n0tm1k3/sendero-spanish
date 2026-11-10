@@ -454,6 +454,12 @@ textarea#w-text:focus { border-color: var(--accent); outline: none; }
 .q-cr.sel { border-color: var(--q-gold); box-shadow: 0 0 0 2px var(--q-gold); }
 #q-crdetail span { color: var(--q-dim); font-size: .85rem; }
 .q-return { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.q-items { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.q-item { font: inherit; font-size: 0.85rem; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: inherit; cursor: pointer; }
+.q-item:disabled { opacity: .45; cursor: default; }
+.q-who.q-vil { color: #c8c0e8; letter-spacing: .08em; }
+#q-goal .q-gl { display: block; overflow: hidden; text-overflow: ellipsis; }
+.q-hearts { color: #ff8fa3; letter-spacing: 1px; }
 @media (max-width: 639px) { #q-goal { font-size: 0.72rem; } .q-hud-l, .q-hud-r { font-size: 0.74rem; } }
 @media (min-width: 640px) { #q-dlg { position: absolute; left: 10px; right: 10px; bottom: 10px; max-height: calc(100% - 64px); overflow-y: auto; z-index: 5; margin: 0; } }
 @media (hover: hover) and (pointer: fine) { #q-pad { display: none; } }
@@ -2623,7 +2629,7 @@ function mergeState(a, b) {
   if (b.story && (!a.story || b.story.day > a.story.day)) out.story = b.story;
   if (b.streak && (b.streak.last || '') > ((a.streak || {}).last || '')) out.streak = b.streak;
   out.sprintBest = Math.max(a.sprintBest || 0, b.sprintBest || 0);
-  if (a.quest || b.quest) { const qa = a.quest || {}, qb = b.quest || {}; out.quest = Object.assign({}, qb, qa, { flags: Object.assign({}, qb.flags, qa.flags), pending: [...new Set([...(qa.pending || []), ...(qb.pending || [])])], caught: Object.assign({}, qb.caught, qa.caught), name: qa.name || qb.name || '' }); }
+  if (a.quest || b.quest) { const qa = a.quest || {}, qb = b.quest || {}; out.quest = Object.assign({}, qb, qa, { flags: Object.assign({}, qb.flags, qa.flags), pending: [...new Set([...(qa.pending || []), ...(qb.pending || [])])], caught: Object.assign({}, qb.caught, qa.caught), friend: maxMap(qb.friend, qa.friend), bag: maxMap(qb.bag, qa.bag), fday: Object.assign({}, qb.fday, qa.fday), rematch: Object.assign({}, qb.rematch, qa.rematch), name: qa.name || qb.name || '' }); }
   out.updatedAt = now();
   return out;
 }
@@ -3037,7 +3043,7 @@ const mentorOf = u => MENTORS.find(n => n.unit === u);
 // ---------- state (lives in S.quest, so it syncs and travels in progress files) ----------
 function Q() {
   if (!S.quest || typeof S.quest !== 'object') S.quest = { town: 0, pos: null, flags: {}, pending: [], name: '' };
-  const q = S.quest; q.flags = q.flags || {}; q.pending = Array.isArray(q.pending) ? q.pending : []; q.caught = q.caught || {}; if (q.musicOn === undefined) q.musicOn = true; if (!TOWNS[q.town]) q.town = 0;
+  const q = S.quest; q.flags = q.flags || {}; q.pending = Array.isArray(q.pending) ? q.pending : []; q.caught = q.caught || {}; q.friend = q.friend || {}; q.fday = q.fday || {}; q.bag = q.bag || {}; q.rematch = q.rematch || {}; if (q.musicOn === undefined) q.musicOn = true; if (!TOWNS[q.town]) q.town = 0;
   return q;
 }
 const flag = k => !!Q().flags[k];
@@ -3181,7 +3187,7 @@ function drawBossMini(g, B, X, Y, t) {
 
 // ---------- loop ----------
 const player = { x: 0, y: 0, d: 'down', px: 0, py: 0, moving: false };
-let running = false, last = 0, markT = -1e9, marks = [], bossMark = false, camX = 0, camY = 0;
+let running = false, last = 0, markT = -1e9, marks = [], bossMark = false, camX = 0, camY = 0, bossOn = false, emarks = [], silencio = null;
 function placePlayer() {
   const q = Q(), T = town(); const p = q.pos && q.pos.town === q.town ? q.pos : { x: T.start[0], y: T.start[1], d: 'down' };
   player.x = p.x; player.y = p.y; player.d = p.d || 'down'; player.px = p.x * TS; player.py = p.y * TS; player.moving = false;
@@ -3202,14 +3208,16 @@ function frame(t) {
   cx.setTransform(1, 0, 0, 1, -Math.round(camX), -Math.round(camY));
   if (!reducedMotion) drawWater(t);
   const T = town(); const ents = [];
+  if (t - markT > 800) { markT = t; marks = T.npcs.filter(n => n.unit !== undefined && mentorHasNews(n)); bossOn = bossHere(T); bossMark = bossOn && (beaten(T.i) || bossReady(T.i)); const er = errandToday(); emarks = T.npcs.filter(n => (er.state === 'offer' && er.from === n.id) || (er.state === 'carry' && er.to === n.id)); }
   wander(t);
   T.npcs.forEach(n => { const [nx, ny] = npcPos(n); const mv = nx !== n.x * TS || ny !== n.y * TS; ents.push({ y: ny, draw: () => n.dog ? drawDog(cx, nx, ny, t) : drawChar(cx, nx, ny, n.look, n.dir || 'down', mv ? Math.floor(t / 130) : 0) }); });
-  if (!beaten(T.i)) ents.push({ y: T.boss.y * TS, draw: () => drawBossMini(cx, T.boss, T.boss.x * TS, T.boss.y * TS, t) });
+  if (silencio) ents.push({ y: silencio.y * TS, draw: () => drawChar(cx, silencio.x * TS, silencio.y * TS, SIL_LOOK, silencio.d, 0) });
+  if (bossOn) ents.push({ y: T.boss.y * TS, draw: () => drawBossMini(cx, T.boss, T.boss.x * TS, T.boss.y * TS, t) });
   ents.push({ y: player.py, draw: () => drawChar(cx, Math.round(player.px), Math.round(player.py), { skin: '#d8a682', hair: '#33261c', shirt: '#d2463a', pants: '#2b3a67' }, player.d, player.moving ? Math.floor(t / 130) : 0) });
   ents.sort((a, b) => a.y - b.y).forEach(e => e.draw());
-  if (t - markT > 800) { markT = t; marks = T.npcs.filter(n => n.unit !== undefined && mentorHasNews(n)); bossMark = !beaten(T.i) && bossReady(T.i); }
+  lightOverlay();
   const mark = (x, y, col) => { const by = reducedMotion ? 0 : Math.round(Math.sin(t / 250)); px(cx, x * TS + 7, y * TS - 7 + by, 2, 5, col); px(cx, x * TS + 7, y * TS - 1 + by, 2, 2, col); };
-  marks.forEach(n => mark(n.x, n.y, '#ffd34d')); if (bossMark) mark(T.boss.x, T.boss.y, '#ff6b6b');
+  marks.forEach(n => mark(n.x, n.y, '#ffd34d')); emarks.forEach(n => mark(n.x, n.y, '#6fe08a')); if (bossMark) mark(T.boss.x, T.boss.y, beaten(T.i) ? '#c08af0' : '#ff6b6b');
   drawWipe(t);
   requestAnimationFrame(frame);
 }
@@ -3223,7 +3231,7 @@ function blockedAt(x, y) {
   const T = town(); if (x < 0 || y < 0 || x >= MW || y >= MH) return true;
   const ch = T.map[y][x]; if (SOLID.has(ch)) return true;
   if (T.npcs.some(n => n.x === x && n.y === y)) return true;
-  if (!beaten(T.i) && T.boss.x === x && T.boss.y === y) return true;
+  if (bossHere(T) && T.boss.x === x && T.boss.y === y) return true;
   return false;
 }
 function tryMove(d) {
@@ -3260,7 +3268,7 @@ function interact() {
   const T = town(); const [dx, dy] = DIRS[player.d]; const x = player.x + dx, y = player.y + dy, k = x + ',' + y;
   const n = T.npcs.find(m => m.x === x && m.y === y);
   if (n) { n.dir = { up: 'down', down: 'up', left: 'right', right: 'left' }[player.d]; return talk(n); }
-  if (!beaten(T.i) && T.boss.x === x && T.boss.y === y) return bossTalk();
+  if (bossHere(T) && T.boss.x === x && T.boss.y === y) return bossTalk();
   const ch = T.map[y] && T.map[y][x];
   if (ch === 'S' && T.signs[k]) return runDialog([{ who: 'Letrero', es: T.signs[k].es, en: T.signs[k].en }]);
   if (T.doors[k]) { const rk = (DOOR_ROOMS[T.id] || {})[k]; return rk ? openRoom(rk, T.doors[k]) : runDialog([{ who: T.doors[k], en: 'The door is locked.' }]); }
@@ -3295,8 +3303,8 @@ function hud() {
   const l = level(), lo = lvlFloor(l), hi = lvlFloor(l + 1), m = memoryPct(), T = town();
   qs('#q-ch').textContent = `Capítulo ${T.ch} · ${T.name}`;
   qs('#q-hud').innerHTML = `<div class="q-hud-l"><span class="q-lv">Nv ${l}</span><span class="q-xpbar"><i style="width:${(S.xp - lo) / (hi - lo) * 100}%"></i></span><span class="q-hud-t">${Q().name ? esc(Q().name) : 'Viajero'}</span></div>
-  <div class="q-hud-r"><span title="Predicted recall across learned cards">Memoria <b>${m === null ? '—' : Math.round(m * 100) + '%'}</b></span><span title="Cards waiting to be practiced">Olvidos <b>${olvidos()}</b></span></div>`;
-  qs('#q-goal').innerHTML = `<b>Misión</b> ${esc(currentQuest())}`;
+  <div class="q-hud-r"><span title="Predicted recall across learned cards">Memoria <b>${m === null ? '—' : Math.round(m * 100) + '%'}</b></span><span title="Cards waiting to be practiced">Olvidos <b>${olvidos()}</b></span><span title="Day and night follow your clock">${dayPart() === 'noche' ? '☾' : '☀'}</span></div>`;
+  qs('#q-goal').innerHTML = `<span class="q-gl"><b>Misión</b> ${esc(currentQuest())}</span>${errandLine() ? `<span class="q-gl"><b>Encargo</b> ${esc(errandLine())}</span>` : ''}`;
 }
 function currentQuest() {
   const here = Q().town;
@@ -3356,7 +3364,7 @@ function showPage() {
     let body = '';
     if (p.es) { const line = esLine(p.es, p.free); body += `<p class="q-es" lang="es">${line.html} ${qaudio(p.es, p.who)}</p>`; if (p.en) body += line.cov >= 0.95 ? `<details class="q-en-d"><summary>English</summary>${esc(p.en)}</details>` : `<p class="q-en">${esc(p.en)}</p>`; say(p.es, false, p.who); }
     else body += `<p class="q-lt">${esc(p.en)}</p>`;
-    box.innerHTML = `<p class="q-who">${esc(p.who)}</p>${body}${nextBtn(dlg.i === dlg.pages.length - 1)}`;
+    box.innerHTML = `<p class="q-who${p.villain ? ' q-vil' : ''}">${esc(p.who)}</p>${body}${nextBtn(dlg.i === dlg.pages.length - 1)}`;
   }
   const nb = qs('#q-dlg-next'); if (nb) nb.focus({ preventScroll: true });
 }
@@ -3380,6 +3388,14 @@ function talk(n) {
   if (!prevReady(n.unit)) {
     const prev = mentorOf(n.unit - 1);
     return runDialog([P({ es: 'Hola…', en: `Come back after you’ve worked through more with ${prev.name}${prev.town !== n.town ? ' in ' + TOWNS[prev.town].name : ''}. (${Math.round(unitStarted(n.unit - 1) * 100)}% of that unit started; 60% needed.)` })]);
+  }
+  const er = errandToday();
+  if (flag('met_' + n.id) && er.state === 'offer' && er.from === n.id) return runDialog(errandOffer(n, er));
+  if (er.state === 'carry' && er.to === n.id) return runDialog(errandDeliver(n, er));
+  const q = Q();
+  if (flag('met_' + n.id) && q.fday[n.id] !== dayKey()) {
+    q.fday[n.id] = dayKey(); const g = GREET[dayPart()]; pages.push(P({ es: g[0], en: g[1] }));
+    if (unitStarted(n.unit) >= 0.3) pages.push(...addHeart(n, 'you keep studying together'));
   }
   if (!flag('met_' + n.id)) {
     n.intro.forEach(l => pages.push(P(l.ask ? { es: l.es, en: l.en, ask: true } : l)));
@@ -3441,7 +3457,7 @@ function startBattle(boss) {
   const T = town(); const f = T.foes[Math.floor(Math.random() * T.foes.length)];
   const foe = boss ? { name: T.boss.name, es: T.boss.name, shape: T.boss.shape, col: T.boss.col } : { name: f[0], es: f[1], shape: f[2], col: f[3] };
   const hp = Math.max(40, Math.round(q.length * 20 * 0.8)); // about 80% right wins, near the 85% target
-  bt = { q, i: 0, boss, foe, hp, max: hp, php: 100, xp: 0, tried: {}, retries: {}, phase: 'intro', res: null, mode: null, opts: null, t0: 0, ok: 0, n: 0, shake: 0, caught: 0 };
+  bt = { q, i: 0, boss, foe, hp, max: hp, php: 100, xp: 0, tried: {}, retries: {}, phase: 'intro', res: null, mode: null, opts: null, t0: 0, ok: 0, n: 0, shake: 0, caught: 0, hint: null, rematch: !!boss && beaten(T.i) };
   held = null; MUSIC.play(boss ? 'boss' : 'battle');
   if (reducedMotion) openBattle(); else { mode = 'trans'; wipe = { t0: performance.now(), done: openBattle }; }
   return true;
@@ -3454,6 +3470,7 @@ function openBattle() {
 }
 function bossTalk() {
   const T = town(), B = T.boss;
+  if (beaten(T.i)) return runDialog([{ who: B.name, es: '¡Volví! ¿Te acuerdas de mí?', en: `I’m back! Remember me? ${dueInTown(T)} words from ${T.name} are fading, and ${B.name} has gathered them up. A rematch is a review of exactly those.` }], () => { if (!startBattle(true)) runDialog([{ who: B.name, en: 'It fades before you can fight it. Those words are safe for now.' }]); });
   if (!bossReady(T.i)) { const u = T.units[T.units.length - 1], n = mentorOf(u); return runDialog([{ who: B.name, es: B.say.es, en: `${B.say.en} (You can’t face it yet: start 70% of ${n.name}’s unit first. Now ${Math.round(unitStarted(u) * 100)}%.)` }]); }
   runDialog([{ who: B.name, es: B.say.es, en: B.say.en }], () => { if (!startBattle(true)) runDialog([{ who: B.name, en: 'It looks straight through you. Learn and practice a few more words first.' }]); });
 }
@@ -3496,7 +3513,7 @@ function renderBattle() {
       const ans = it.kind === 'w' ? (c.dir === 'r' ? `<b lang="es">${esc(it.es)}</b> = ${esc(it.en.join(', '))}` : `<b lang="es">${esc(it.es)}</b> ${qaudio(it.es)}`) : it.kind === 'c' ? `<span lang="es">${esc(it.q.replace('___', it.a[0]))}</span> · ${esc(it.why)}` : it.kind === 'd' ? `<b lang="es">${esc(it.say)}</b> = ${esc(it.en)}` : it.kind === 'pi' ? `${esc(it.en)} · ${esc(it.why)}` : esc(it.why);
       fb = `<div class="q-fb ${r.grade}"><p class="q-verdict">${verdict} ${r.dmg ? `<span class="q-dmg">−${r.dmg} HP</span>` : ''} <span class="q-xp">+${r.xp} XP</span></p>${r.note ? `<p class="q-tip">${esc(r.note)}</p>` : ''}<p>${ans}</p>${it.kind === 'w' && it.ff ? `<p class="q-tip warn">${esc(it.ff)}</p>` : ''}<div class="q-act"><span class="q-cnt">${bt.i + 1}/${bt.q.length}</span><button class="q-nx primary" id="qb-next">Siguiente ▸</button></div></div>`;
     }
-    panel = prompt + input + fb;
+    panel = prompt + input + (done ? '' : itemsRow()) + fb;
   }
   B.innerHTML = `<div class="q-bwrap">${bars}${stage}<div class="q-bpanel q-win">${panel}</div></div>`;
   const nb = qs('#qb-next'), inp = qs('#qb-in');
@@ -3523,6 +3540,7 @@ function bAnswer(raw, pick) {
   const typed = m === 'type' || m === 'typeEs';
   if (g === 3 && before && before.reps >= 2 && rt < (typed ? 5000 : 2000)) g = 4;
   if (g === 3 && m === 'mc') g = 2;
+  if (bt.hint && g > 2) { g = 2; res = Object.assign({}, res, { grade: 'close', note: (res.note ? res.note + ' · ' : '') + 'Hint used, so it counts as Hard.' }); }
   S.cards[cid] = FSRS.review(before, g, t, S.settings.retention);
   const first = !bt.tried[cid]; bt.tried[cid] = true;
   let xp;
@@ -3545,15 +3563,16 @@ function bNext() {
   if (bt.hp <= 0) return endBattle('win');
   if (bt.php <= 0) return endBattle('lose');
   bt.i++; if (bt.i >= bt.q.length) return endBattle('out');
-  bt.phase = 'ask'; bt.res = null; renderBattle();
+  bt.phase = 'ask'; bt.res = null; bt.hint = null; renderBattle();
 }
 function endBattle(how) {
   const acc = bt.n ? bt.ok / bt.n : 0, T = town(); let title, body;
   if (how === 'win') {
-    const bonus = bt.boss ? (T.boss.final ? 200 : 100) : 10; addXP(bonus); bt.xp += bonus;
+    const bonus = bt.rematch ? 50 : bt.boss ? (T.boss.final ? 200 : 100) : 10; addXP(bonus); bt.xp += bonus;
     title = bt.boss ? `¡${T.boss.name} cae!` : '¡Ganaste!';
-    body = bt.boss ? 'The way forward opens.' : 'The Olvido fades, and the words you recalled are stronger for it.';
-    if (bt.boss) setFlag('boss_' + T.boss.id);
+    body = bt.rematch ? `It scatters again, and the words it gathered are fresh for a while. You find ${itemName('pista', 1)}.` : bt.boss ? 'The way forward opens.' : 'The Olvido fades, and the words you recalled are stronger for it.';
+    if (bt.rematch) { Q().rematch[T.boss.id] = dayKey(); giveItem('pista'); }
+    else if (bt.boss) setFlag('boss_' + T.boss.id);
   } else if (how === 'lose') {
     title = 'Te desmayas…'; body = 'You faint and wake up by the fountain. Nothing is lost: every miss already rescheduled that card to come back soon.';
     player.x = T.spawn[0]; player.y = T.spawn[1]; player.px = player.x * TS; player.py = player.y * TS; player.d = 'down'; savePos();
@@ -3564,9 +3583,9 @@ function endBattle(how) {
   save(); renderBattle();
 }
 function closeBattle() {
-  const won = bt.boss && beaten(Q().town); bt = null; qs('#q-battle').hidden = true; mode = 'walk'; MUSIC.play(townSong());
+  const won = bt.boss && !bt.rematch && beaten(Q().town); bt = null; qs('#q-battle').hidden = true; mode = 'walk'; MUSIC.play(townSong());
   render(); // refresh the header's XP, minutes and streak; the game itself is kept as it was
-  if (won) { const w = town().boss.win; runDialog([{ who: w.who, es: w.es, en: w.en }]); }
+  if (won) runDialog(winPages(town()), () => { silencio = null; });
 }
 function hitFx(who, n) {
   const fx = qs('#q-fx'); if (!fx) return;
@@ -3603,18 +3622,21 @@ let menuTab = 'quests';
 function openMenu() { mode = 'menu'; held = null; qs('#q-menu').hidden = false; renderMenu(); }
 function closeMenu() { mode = 'walk'; qs('#q-menu').hidden = true; hud(); }
 function renderMenu() {
-  const tabs = [['quests', 'Misiones'], ['map', 'Mapa'], ['dict', 'Diccionario'], ['memory', 'Memoria'], ['how', 'Cómo funciona']];
+  const tabs = [['quests', 'Misiones'], ['map', 'Mapa'], ['bag', 'Mochila'], ['dict', 'Diccionario'], ['memory', 'Memoria'], ['how', 'Cómo funciona']];
   let body = '';
   if (menuTab === 'quests') {
     const T = town();
-    const rows = T.units.map(u => { const n = mentorOf(u), p = unitStarted(u); return [UNITS[u].es, `${n.name} · Unit ${u} (${UNITS[u].title})`, p, flag('met_' + n.id) || p > 0]; });
+    const rows = T.units.map(u => { const n = mentorOf(u), p = unitStarted(u); return [UNITS[u].es, `${n.name} · Unit ${u} (${UNITS[u].title}) · ${heartStr(n.id)}`, p, flag('met_' + n.id) || p > 0]; });
     rows.push([T.boss.name, `Boss · mixes ${T.boss.focus.map(u => 'Unit ' + u).join(' and ')} with words from here`, beaten(T.i) ? 1 : 0, bossReady(T.i)]);
-    body = `<p class="q-tip">${esc(currentQuest())}</p><h4>Capítulo ${T.ch} · ${esc(T.name)}</h4><ul class="q-qlist">${rows.map(([t, s, p, on]) => `<li class="${on ? '' : 'off'}"><div><b>${esc(t)}</b><span>${esc(s)}</span></div><span class="q-hp q"><i style="width:${p * 100}%"></i></span><span class="num">${Math.round(p * 100)}%</span></li>`).join('')}</ul>
+    if (rematchReady(T.i)) rows.push([`${T.boss.name}: revancha`, `${dueInTown(T)} words from here are fading, and the boss is back to collect them.`, 0, true]);
+    body = `<p class="q-tip">${esc(currentQuest())}</p>${errandLine() ? `<p class="q-tip"><b>Encargo:</b> ${esc(errandLine())}</p>` : ''}<h4>Capítulo ${T.ch} · ${esc(T.name)}</h4><ul class="q-qlist">${rows.map(([t, s, p, on]) => `<li class="${on ? '' : 'off'}"><div><b>${esc(t)}</b><span>${esc(s)}</span></div><span class="q-hp q"><i style="width:${p * 100}%"></i></span><span class="num">${Math.round(p * 100)}%</span></li>`).join('')}</ul>
     <p class="q-tip">Mentors teach the same units as the Path tab, in the same order. Anything you learn in the Cards tab counts here too, and the other way round.</p>`;
   } else if (menuTab === 'map') {
     body = `<ul class="q-qlist q-map">${TOWNS.map(T => { const open = unlocked(T.i), seen = flag('visit_' + T.id), here = T.i === Q().town; const done = T.units.filter(u => unitStarted(u) >= 0.6).length;
-      return `<li class="${open ? '' : 'off'}"><div><b>${T.ch}. ${esc(T.name)}${beaten(T.i) ? ' ✓' : ''}</b><span>Units ${T.units[0]}–${T.units[T.units.length - 1]} · ${done}/${T.units.length} units started${open ? '' : ' · locked'}</span></div>${here ? '<span class="q-here">Aquí</span>' : seen ? `<button class="q-nx" data-qtravel="${T.i}">Viajar</button>` : '<span></span>'}</li>`; }).join('')}</ul>
+      return `<li class="${open ? '' : 'off'}"><div><b>${T.ch}. ${esc(T.name)}${beaten(T.i) ? ' ✓' : ''}</b><span>Units ${T.units[0]}–${T.units[T.units.length - 1]} · ${done}/${T.units.length} units started${open ? '' : ' · locked'}${rematchReady(T.i) ? ' · revancha' : ''}</span></div>${here ? '<span class="q-here">Aquí</span>' : seen ? `<button class="q-nx" data-qtravel="${T.i}">Viajar</button>` : '<span></span>'}</li>`; }).join('')}</ul>
     <p class="q-tip">Travel to any town you’ve visited. Each new town opens when you beat the boss of the one before it.</p>`;
+  } else if (menuTab === 'bag') {
+    body = bagHtml();
   } else if (menuTab === 'dict') {
     body = dictHtml();
   } else if (menuTab === 'memory') {
@@ -3633,6 +3655,11 @@ function renderMenu() {
       <li><b>Dialogue is input.</b> Lines are in Spanish. The English hides itself once you know 95% of a line’s words. Tap any word for its meaning.</li>
       <li><b>The buildings are the rest of the course.</b> Doors lead to the stories, today’s story, the games, shadowing, writing and the listening log, and the time counts toward today’s plan as usual.</li>
       <li><b>The Diccionario.</b> Every Olvido you beat is caught, and it grows as its word settles into long-term memory, using the same stages as the Garden.</li>
+      <li><b>Friendships.</b> Once a day, talking to a mentor whose unit you’re working on adds a heart (♥, up to 5), and errands add more. At 3 and 5 hearts they share something about themselves and give you items.</li>
+      <li><b>Errands.</b> Each day one mentor asks you to carry something to another. The Encargo line names it in English; the person you deliver to asks in Spanish, so you have to recognize the word.</li>
+      <li><b>Items never skip a review.</b> The café heals you in battle and the hint shows a few letters, but a hinted answer is graded Hard. The bell calls an Olvido only if something is due.</li>
+      <li><b>Rematches.</b> A beaten boss comes back when five or more words from its town are due. The rematch is a review of exactly what’s fading.</li>
+      <li><b>Day and night</b> follow your clock, and people greet you to match: buenos días, buenas tardes, buenas noches.</li>
       <li><b>Losing costs nothing.</b> Missed cards just come back sooner.</li></ul>
       <p class="q-tip">Controls: arrow keys or WASD to walk, Space or Enter to talk, M for this menu. On a phone, use the pad and the A button.</p>`;
   }
@@ -3660,6 +3687,8 @@ function onClick(e) {
     else { b.classList.add('no'); const tip = qs('#q-dlg-tip'); tip.hidden = false; tip.textContent = c.tip; }
     return;
   }
+  if (b.dataset.qitem && bt && bt.phase === 'ask') return useBattleItem(b.dataset.qitem);
+  if (b.dataset.quse === 'campana') { closeMenu(); if (startBattle(false)) { bag().campana--; save(); } else toast('The bell rings, but nothing answers: no Olvidos are due right now. You keep the bell.'); return; }
   if (b.dataset.qopt !== undefined && bt && bt.phase === 'ask') return bAnswer('', +b.dataset.qopt);
   if (b.id === 'qb-next') return bNext();
   if (b.id === 'qb-idk') return bAnswer('', -1);
@@ -3889,8 +3918,154 @@ function startFromTitle() {
   if (!flag('intro')) { setFlag('visit_' + TOWNS[0].id); setFlag('arrived_' + TOWNS[0].id); runDialog(TOWNS[0].arrive.concat(alreadyNote()).map(l => ({ who: TOWNS[0].name, en: l.en })).concat([{ fn: () => setFlag('intro') }])); }
 }
 
+// ---------- friendships, errands, items, rematches, day and night, El Silencio ----------
+let hourOverride = null;
+const hourNow = () => hourOverride ?? new Date().getHours();
+const dayPart = () => { const h = hourNow(); return h >= 5 && h < 12 ? 'dia' : h >= 12 && h < 19 ? 'tarde' : 'noche'; };
+const GREET = { dia: ['¡Buenos días!', 'Good morning!'], tarde: ['¡Buenas tardes!', 'Good afternoon!'], noche: ['¡Buenas noches!', 'Good evening!'] };
+function lightOverlay() {
+  const p = dayPart(), h = hourNow(); let col = null;
+  if (p === 'noche') col = 'rgba(14,20,58,0.5)'; else if (h >= 17) col = 'rgba(255,128,48,0.16)'; else if (h < 8) col = 'rgba(255,196,140,0.14)';
+  if (!col) return;
+  const X = Math.round(camX), Y = Math.round(camY), lx = player.px + 8, ly = player.py + 8;
+  cx.save();
+  if (p === 'noche') { const g = cx.createRadialGradient(lx, ly, 8, lx, ly, 64); g.addColorStop(0, 'rgba(14,20,58,0.08)'); g.addColorStop(1, 'rgba(14,20,58,0.55)'); cx.fillStyle = g; }
+  else cx.fillStyle = col;
+  cx.fillRect(X, Y, VW * TS, VH * TS); cx.restore();
+}
+
+const ITEMS = {
+  cafe: { es: 'Café', icon: '☕', en: 'In battle: restores 40 HP. It never touches your cards.' },
+  pista: { es: 'Pista', icon: '✎', en: 'In battle, on a card you type: shows the first letters. A hinted answer counts as Hard, so the scheduler stays honest.' },
+  campana: { es: 'Campana', icon: '🔔', en: 'Calls an Olvido to you anywhere, if something is due. Saves the walk to the tall grass.' }
+};
+const bag = () => Q().bag;
+function giveItem(k, n = 1) { bag()[k] = (bag()[k] || 0) + n; }
+const itemName = (k, n) => `${ITEMS[k].icon} ${ITEMS[k].es}${n > 1 ? ' ×' + n : ''}`;
+function bagHtml() {
+  const b = bag();
+  return `<ul class="q-qlist q-map">${Object.entries(ITEMS).map(([k, I]) => `<li class="${b[k] ? '' : 'off'}"><div><b>${I.icon} ${esc(I.es)} ×${b[k] || 0}</b><span>${esc(I.en)}</span></div>${k === 'campana' && b[k] ? '<button class="q-nx" data-quse="campana">Usar</button>' : '<span></span>'}</li>`).join('')}</ul>
+  <p class="q-tip">Items come from errands, friendships and rematches. None of them skips a review.</p>`;
+}
+function hintFor(c) {
+  const it = c.it; const a = bt.mode === 'type' ? it.en[0] : it.kind === 'w' ? it.es.split(' / ')[0].replace(/…/g, '').trim() : it.kind === 'c' ? it.a[0] : it.say;
+  return a.replace(/[^\s]+/g, w => { const k = Math.ceil(w.length / 2); return w.slice(0, k) + '_'.repeat(w.length - k); });
+}
+function itemsRow() {
+  const b = bag(), cafe = b.cafe || 0, pista = b.pista || 0, typed = bt.mode === 'type' || bt.mode === 'typeEs';
+  const btns = (cafe ? `<button class="q-item" data-qitem="cafe" ${bt.php >= 100 ? 'disabled' : ''}>☕ Café ×${cafe}</button>` : '') + (pista && typed ? `<button class="q-item" data-qitem="pista" ${bt.hint ? 'disabled' : ''}>✎ Pista ×${pista}</button>` : '');
+  return (btns ? `<div class="q-items">${btns}</div>` : '') + (bt.hint ? `<p class="q-tip">Pista: <b lang="es">${esc(bt.hint)}</b> (counts as Hard)</p>` : '');
+}
+function useBattleItem(k) {
+  if (!(bag()[k] > 0)) return;
+  const inp = qs('#qb-in'), val = inp ? inp.value : '', t0 = bt.t0, c = CARD[bt.q[bt.i]];
+  if (k === 'cafe') { if (bt.php >= 100) return; bt.php = Math.min(100, bt.php + 40); }
+  else { if (bt.hint) return; bt.hint = hintFor(c); }
+  bag()[k]--; save(); renderBattle(); bt.t0 = t0;
+  const i2 = qs('#qb-in'); if (i2) { i2.value = val; i2.focus({ preventScroll: true }); }
+}
+
+// Mentors become friends as you keep studying with them.
+const BONDS = {
+  luz: ['Soy profesora. Mi madre es profesora también.', 'I’m a teacher. My mother is a teacher too.'],
+  rosa: ['¡Hola otra vez! Gracias, mi amigo.', 'Hello again! Thank you, my friend. Rosa squeezes your hand.'],
+  luis: ['Soy de San Lucas, pero mi familia es de México.', 'I’m from San Lucas, but my family is from Mexico.'],
+  tomas: ['Mi casa es pequeña, pero es bonita. Y el mar es grande.', 'My house is small, but it’s pretty. And the sea is big.'],
+  marisol: ['Trabajo mucho, pero hoy escucho música contigo.', 'I work a lot, but today I’m listening to music with you.'],
+  ruben: ['Mi amigo es el mar. Es viejo y muy grande.', 'My friend is the sea. It’s old and very big.'],
+  paz: ['Hoy estoy contenta. ¿Y tú? ¿Cómo estás?', 'Today I’m happy. And you? How are you?'],
+  andres: ['Tengo que trabajar, pero quiero ir a la montaña contigo.', 'I have to work, but I want to go to the mountain with you.'],
+  ernesto: ['Leo un libro todos los días. Vivo aquí con mi gato.', 'I read a book every day. I live here with my cat.'],
+  lupe: ['Me gusta bailar. ¿Te gusta bailar?', 'I like dancing. Do you like dancing?'],
+  quintero: ['¿Cuántos años tengo? ¡Cien! No… sesenta.', 'How old am I? A hundred! No… sixty.'],
+  ines: ['Me levanto a las cinco y desayuno pan con café.', 'I get up at five and have bread and coffee for breakfast.'],
+  valeria: ['Hoy hace sol. ¡Y mi cumpleaños es el sábado!', 'It’s sunny today. And my birthday is on Saturday!'],
+  mora: ['Mi casa está al lado del parque. Está muy cerca.', 'My house is next to the park. It’s very close.'],
+  ramon: ['Para ti, una sopa. ¡Está muy rica!', 'For you, a soup. It’s delicious!'],
+  julio: ['Pienso mucho en mi ciudad. Vuelvo en diciembre.', 'I think about my city a lot. I’m going back in December.'],
+  celia: ['Te conozco bien. Siempre te ayudo.', 'I know you well. I’ll always help you.'],
+  sofia: ['Ayer fui al mercado y compré fruta para ti.', 'Yesterday I went to the market and bought fruit for you.'],
+  matias: ['Cuando era niño, vivía aquí. La ciudad era pequeña.', 'When I was a boy, I lived here. The town was small.'],
+  celeste: ['Gracias por todo. Este regalo es para ti.', 'Thanks for everything. This present is for you.']
+};
+const hearts = id => Q().friend[id] || 0;
+const heartStr = id => { const h = hearts(id); return '♥'.repeat(h) + '♡'.repeat(5 - h); };
+function addHeart(n, why) {
+  const q = Q(), h = (q.friend[n.id] || 0) + 1; if (h > 5) return [];
+  q.friend[n.id] = h; const P = o => Object.assign({ who: n.name }, o);
+  const out = [P({ en: `♥ Friendship with ${n.name}: ${h}/5${why ? ' (' + why + ')' : ''}.` })];
+  if (h === 3) { out.push(P({ es: BONDS[n.id][0], en: BONDS[n.id][1] })); giveItem('pista', 2); out.push(P({ en: `${n.name} gives you ${itemName('pista', 2)}.` })); }
+  if (h === 5) { out.push(P({ es: '¡Somos amigos! Esto es para ti.', en: 'We’re friends! This is for you.' })); giveItem('cafe', 2); out.push(P({ en: `${n.name} gives you ${itemName('cafe', 2)}.` })); }
+  return out;
+}
+
+// One errand a day: carry something from one mentor to another, and name it in Spanish when you arrive.
+const mentorById = id => MENTORS.find(n => n.id === id);
+const CARRY = ['libro', 'telefono', 'cafe', 'pan', 'queso', 'huevo', 'fruta', 'leche', 'jugo', 'pollo', 'pescado', 'arroz', 'frijoles', 'carne', 'agua', 'cerveza', 'regalo', 'ff-ropa', 'comida', 'sopa'];
+const nounsKnown = () => CARRY.map(id => ITEM[id]).filter(it => it && st(it.id + ':r'));
+function errandToday() {
+  const q = Q(), k = dayKey();
+  if (q.errand && q.errand.day === k && q.errand.state !== 'none') return q.errand;
+  q.errand = { day: k, state: 'none' };
+  const met = MENTORS.filter(n => flag('met_' + n.id) && unlocked(n.town)); const nouns = nounsKnown();
+  if (met.length < 2 || nouns.length < 3) return q.errand;
+  const r = seeded('encargo-' + k); const from = met[Math.floor(r() * met.length)]; const others = met.filter(n => n !== from);
+  Object.assign(q.errand, { state: 'offer', from: from.id, to: others[Math.floor(r() * others.length)].id, obj: nouns[Math.floor(r() * nouns.length)].id });
+  return q.errand;
+}
+function errandLine() {
+  const er = errandToday(); const inTown = n => n.town !== Q().town ? ` in ${TOWNS[n.town].name}` : '';
+  if (er.state === 'offer') { const f = mentorById(er.from); return `${f.name}${inTown(f)} has an errand for you.`; }
+  if (er.state === 'carry') { const to = mentorById(er.to); return `Take the ${ITEM[er.obj].en[0]} to ${to.name}${inTown(to)}.`; }
+  return '';
+}
+const esWord = it => it.es.split(' / ')[0];
+function errandOffer(n, er) {
+  const it = ITEM[er.obj], to = mentorById(er.to), where = to.town !== n.town ? ` in ${TOWNS[to.town].name}` : '';
+  return [{ who: n.name, es: `¿Puedes llevar ${esWord(it)} a ${to.name}?`, en: `Could you take ${esWord(it)} to ${to.name}${where}? It’s an encargo, an errand.`, choice: [{ t: 'Sí, claro.', ok: true, reply: { es: '¡Gracias!', en: 'Thanks!' } }] },
+    { fn: () => { er.state = 'carry'; save(); } },
+    { who: n.name, en: `${to.name} will ask what you’ve brought, in Spanish. Talk to me again for today’s lesson.` }];
+}
+function errandDeliver(n, er) {
+  const it = ITEM[er.obj], from = mentorById(er.from);
+  const others = shuffle(nounsKnown().filter(x => x !== it && esWord(x) !== esWord(it))).slice(0, 2);
+  const choice = shuffle([{ t: `Tengo ${esWord(it)}.`, ok: true, reply: { es: '¡Muchas gracias!', en: 'Thank you so much!' } }, ...others.map(x => ({ t: `Tengo ${esWord(x)}.`, tip: `That means “I have the ${x.en[0]}”. ${from.name} gave you something else.` }))]);
+  const rw = Math.floor(now() / DAY) % 2 ? 'campana' : 'cafe';
+  return [{ who: n.name, es: '¡Hola! ¿Qué tienes para mí?', en: `Hi! What do you have for me? (${from.name} sent you.)`, choice },
+    { fn: () => { if (er.state !== 'carry') return; er.state = 'done'; addXP(15); giveItem(rw); save(); dlg.pages.splice(dlg.i + 1, 0, { who: n.name, en: `Errand done: +15 XP and ${itemName(rw, 1)}.` }, ...addHeart(n, 'errand'), ...addHeart(from, 'errand')); } }];
+}
+
+// Beaten bosses come back when the words of their town fade.
+const dueInTown = T => { const u = new Set(T.units); return dueCards().filter(c => u.has(c.unit)).length; };
+const rematchReady = i => { const T = TOWNS[i]; return beaten(i) && Q().rematch[T.boss.id] !== dayKey() && dueInTown(T) >= 5; };
+const bossHere = T => !beaten(T.i) || rematchReady(T.i);
+
+// The story: El Silencio, who gathers every word that goes unsaid.
+const SIL_LOOK = { skin: '#9aa0b8', hair: '#2a2438', shirt: '#3a3352', pants: '#2a2438', long: true };
+CAST['El Silencio'] = { voice: 'em_santa', rate: 0.8 };
+const SILENCIO = [
+  ['Hola. ¿Quién soy yo? Soy el Silencio.', 'A grey figure steps out of the trees: “Hello. Who am I? I am the Silence.” The Mirror was its doing. Every word nobody says drifts to it, and it grows.'],
+  ['La Mezcla es mi amiga. Hay más.', '“The Tangle was my friend. There are more.” It slips away down the beach before you can answer.'],
+  ['¿Estás cansado? Yo estoy aquí. Siempre.', '“Are you tired? I am here. Always.” The Silence waits for the days you don’t practice.'],
+  ['No me gusta tu voz.', '“I don’t like your voice.” Every word you say out loud is one it can’t take.'],
+  ['Tus palabras están lejos. Están conmigo.', '“Your words are far away. They are with me.” Somewhere ahead, it is keeping them.'],
+  ['Las palabras cambian. Yo no.', '“Words change. I don’t.” It points across the bridge, to the ruins where the past is kept.'],
+  ['Vuelvo mañana. Siempre vuelvo.', '“I’ll be back tomorrow. I always come back.” It thins into the air, and it’s telling the truth: forgetting never stops. But every review pushes it back, and now you know how.']
+];
+function silencioSpot() {
+  for (const [dx, dy, d] of [[2, 0, 'left'], [-2, 0, 'right'], [0, 2, 'up'], [0, -2, 'down'], [1, 1, 'left'], [-1, 1, 'right'], [1, 0, 'left'], [0, 1, 'up']]) { const x = player.x + dx, y = player.y + dy; if (!blockedAt(x, y)) return { x, y, d }; }
+  return null;
+}
+function winPages(T) {
+  const w = T.boss.win, s = SILENCIO[T.i], pages = [{ who: w.who, es: w.es, en: w.en }];
+  if (!s) return pages;
+  pages.push({ fn: () => { silencio = silencioSpot(); } }, { who: 'El Silencio', es: s[0], en: s[1], villain: true }, { fn: () => { silencio = null; } });
+  if (T.boss.final) pages.push({ who: w.who, es: '¡No importa! Tú también vuelves.', en: '“It doesn’t matter! You come back too.” Beaten bosses return when their words fade, so keep crossing the tall grass. Every day is a new chapter.' });
+  return pages;
+}
+
 const busy = () => mode !== 'walk';
-return { mount, busy, TOWNS, mentorOf, unitStarted, debug: () => ({ mode, player, q: Q(), bt, TOWNS, startBattle, travel, interact, talk }) };
+return { mount, busy, TOWNS, mentorOf, unitStarted, debug: () => ({ mode, player, q: Q(), bt, TOWNS, startBattle, travel, interact, talk, bag, errandToday, rematchReady, addHeart, winPages, runDialog, setHour: h => { hourOverride = h; markT = -1e9; }, get silencio() { return silencio; } }) };
 })();
 
 window.senderoQuestDebug = QUEST.debug; // used by tools/smoke.js
