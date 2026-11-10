@@ -314,7 +314,9 @@ textarea#w-text:focus { border-color: var(--accent); outline: none; }
 .q-title { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .q-title h2 { font-size: 1.45rem; color: var(--q-gold); text-shadow: 2px 2px 0 #4a2f00; }
 .q-title span { font: 500 0.88rem var(--q-pixel); color: var(--q-dim); }
-#q-stage { position: relative; }
+#q-stage { position: relative; margin: 0 auto; max-width: 100%; }
+.q-mkey kbd { font: 0.72rem var(--mono); border: 1px solid var(--q-rim2); border-radius: 4px; padding: 0 4px; margin-left: 4px; }
+@media (hover: none), (pointer: coarse) { .q-mkey { display: none; } }
 #q-game { position: relative; width: 100%; aspect-ratio: 15 / 11; border-radius: 8px; overflow: hidden; border: 3px solid var(--q-rim); box-shadow: 0 0 0 3px var(--q-win-b); background: #000; }
 #q-world { width: 100%; height: 100%; display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
 #q-hud { position: absolute; top: 6px; left: 6px; right: 6px; display: flex; justify-content: space-between; gap: 6px; pointer-events: none; }
@@ -3079,10 +3081,9 @@ const qaudio = (t, who) => VOICE.can(t) ? `<span class="q-audio"><button class="
 let root = null; const qs = s => root.querySelector(s);
 function build() {
   root = document.createElement('section'); root.id = 'qroot'; root.className = 'qx';
-  root.innerHTML = `<div class="q-title"><h2>Sendero Quest</h2><span class="q-tright"><span id="q-ch"></span><button class="q-abtn q-m" data-qmusic="1"></button></span></div>
+  root.innerHTML = `<div class="q-title"><h2>Sendero Quest</h2><span class="q-tright"><span id="q-ch"></span><button class="q-abtn q-m" data-qmusic="1"></button><button class="q-abtn q-m q-mkey" data-qmenu="1">Menú <kbd>Esc</kbd></button></span></div>
   <div id="q-stage"><div id="q-game"><canvas id="q-world" width="${VW * TS}" height="${VH * TS}" aria-label="Map of the current town"></canvas><div id="q-hud"></div><div id="q-goal"></div><div id="q-toast" role="status" hidden></div></div>
   <div id="q-dlg" class="q-win" role="dialog" aria-live="polite" hidden></div><div id="q-title" hidden></div></div>
-  <p class="q-keys"><kbd>←↑↓→</kbd> or <kbd>WASD</kbd> walk · <kbd>Space</kbd> talk · <kbd>M</kbd> menu · <button class="q-abtn q-m" data-qmenu="1">Menú</button></p>
   <div id="q-pad"><div class="q-dpad"><button class="u" data-qpad="up" aria-label="Up">▲</button><button class="l" data-qpad="left" aria-label="Left">◀</button><button class="r" data-qpad="right" aria-label="Right">▶</button><button class="d" data-qpad="down" aria-label="Down">▼</button></div><span></span>
   <div class="q-btns"><button class="q-abtn q-a" data-qa="1" aria-label="Talk or continue">A</button><button class="q-abtn q-m" data-qmenu="1">Menú</button></div></div>
   <div id="q-battle" hidden></div><div id="q-menu" hidden></div>`;
@@ -3292,7 +3293,7 @@ function onKey(e) {
     if (mode === 'dialog' && (qs('#q-dlg input') || (document.activeElement && document.activeElement.closest && document.activeElement.closest('#q-dlg') && document.activeElement.tagName === 'BUTTON'))) return;
     e.preventDefault(); interact(); return;
   }
-  if (e.key === 'Escape' || e.key === 'm') { if (mode === 'walk') openMenu(); else if (mode === 'menu') { if (room) closeRoom(); else closeMenu(); } }
+  if (e.key === 'Escape') { if (mode === 'walk') openMenu(); else if (mode === 'menu') { if (room) closeRoom(); else closeMenu(); } }
 }
 document.addEventListener('keydown', onKey);
 document.addEventListener('keyup', e => { const k = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right' }[e.key]; if (k === held) held = null; });
@@ -3663,7 +3664,7 @@ function renderMenu() {
       <li><b>Rematches.</b> A beaten boss comes back when five or more words from its town are due. The rematch is a review of exactly what’s fading.</li>
       <li><b>Day and night</b> follow your clock, and people greet you to match: buenos días, buenas tardes, buenas noches.</li>
       <li><b>Losing costs nothing.</b> Missed cards just come back sooner.</li></ul>
-      <p class="q-tip">Controls: arrow keys or WASD to walk, Space or Enter to talk, M for this menu. On a phone, use the pad and the A button.</p>`;
+      <p class="q-tip">Controls: arrow keys or WASD to walk, Space or Enter to talk, Esc for this menu. On a phone, use the pad and the A button.</p>`;
   }
   qs('#q-menu').innerHTML = `<div class="q-win q-menuwin"><div class="q-mhead"><h3>Menú</h3><button class="q-nx" id="qm-close">Cerrar ✕</button></div><div class="q-mtabs">${tabs.map(([id, l]) => `<button data-qtab="${id}" class="${menuTab === id ? 'on' : ''}">${l}</button>`).join('')}</div><div class="q-mbody">${body}</div></div>`;
   if (menuTab === 'dict') paintCreatures();
@@ -3708,10 +3709,20 @@ function onSubmit(e) {
 function onInput() {}
 
 // ---------- mounting into the Quest tab ----------
+// The game is sized so the whole map (and the touch pad) fits in the window without scrolling.
+function fit() {
+  const st = root && qs('#q-stage'); if (!st || !st.isConnected) return;
+  st.style.width = '';
+  const top = st.getBoundingClientRect().top + scrollY, pad = qs('#q-pad');
+  const padH = pad && getComputedStyle(pad).display !== 'none' ? pad.offsetHeight + 14 : 0;
+  const h = innerHeight - top - padH - 16;
+  st.style.width = Math.max(260, Math.min(st.parentElement.clientWidth, (h - 6) * 15 / 11)) + 'px';
+}
+addEventListener('resize', () => { if (view === 'quest') fit(); });
 function mount(host) {
   if (!host) return;
   const first = !root; if (first) build();
-  host.appendChild(root);
+  host.appendChild(root); fit(); setTimeout(fit, 300); if (document.fonts) document.fonts.ready.then(fit);
   if (mode === 'walk' && !player.moving) { if (!Q().pos) Q().pos = null; placePlayer(); }
   if (bgTown !== Q().town) paintBg();
   if (!flag('intro')) setFlag('visit_' + TOWNS[0].id);
