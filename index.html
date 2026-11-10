@@ -1503,7 +1503,7 @@ const VOICE = (() => {
   let clips = null, dev = null, cur = null; const lastV = {}; const listeners = [];
   // Clips live in several files: the core set, the later units, and long story clips loaded on first use.
   const getJ = f => fetch(f).then(r => r.ok ? r.json() : null).catch(() => null);
-  const ready = Promise.all(['audio-es.json', 'audio-es-2.json'].map(getJ)).then(js => { const ok = js.filter(Boolean); if (ok.length) clips = Object.assign({}, ...ok); listeners.forEach(f => f()); return !!clips; });
+  const ready = Promise.all(['audio-es.json', 'audio-es-2.json', 'audio-es-quest.json'].map(getJ)).then(js => { const ok = js.filter(Boolean); if (ok.length) clips = Object.assign({}, ...ok); listeners.forEach(f => f()); return !!clips; });
   let storyClips = null;
   function loadStories() { if (!storyClips) storyClips = getJ('audio-es-stories.json').then(j => { if (j) clips = Object.assign(clips || {}, j); return !!j; }); return storyClips; }
   function pickDev() {
@@ -1512,13 +1512,15 @@ const VOICE = (() => {
     dev = speechSynthesis.getVoices().filter(v => /^es/i.test(v.lang)).sort((a, b) => (pref.indexOf(a.lang) + 99) % 99 - (pref.indexOf(b.lang) + 99) % 99)[0] || null;
   }
   try { pickDev(); if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = pickDev; } catch (e) {}
-  const has = (t, v) => { if (!clips) return false; if (String(t).length > 90 && !storyClips) loadStories(); const k = key(t); return v ? !!clips[v + '|' + k] : TALKERS.some(x => clips[x + '|' + k]); };
+  // A word tapped at the start of a sentence ("Mezcla") uses the lowercase clip.
+  const kk = t => { const k = key(t); if (!clips || TALKERS.some(v => clips[v + '|' + k])) return k; const l = k.toLowerCase(); return TALKERS.some(v => clips[v + '|' + l]) ? l : k; };
+  const has = (t, v) => { if (!clips) return false; if (String(t).length > 90 && !storyClips) loadStories(); const k = kk(t); return v ? !!clips[v + '|' + k] : TALKERS.some(x => clips[x + '|' + k]); };
   const can = t => has(t) || !!dev;
   function stop() { try { if (cur) { cur.pause(); cur = null; } } catch (e) {} try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) {} }
   // opts: slow, voice (a fixed talker, e.g. a character), vary (rotate talkers: multi-talker input), rate
   function play(t, opts = {}) {
     if (!t) return;
-    const k = key(t);
+    const k = kk(t);
     if (k.length > 90 && !storyClips && !(clips && TALKERS.some(v => clips[v + '|' + k]))) { loadStories().then(() => play(t, opts)); return; }
     if (clips) {
       let avail = (opts.voice ? [opts.voice] : TALKERS).filter(v => clips[v + '|' + k]);
