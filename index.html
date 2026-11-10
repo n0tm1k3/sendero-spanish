@@ -3381,7 +3381,7 @@ function showPage() {
     setTimeout(() => { const i = qs('#q-dlg-input'); if (i) i.focus(); }, 30); say(p.es, false, p.who);
   } else if (p.choice) {
     const line = esLine(p.es || '', p.free);
-    box.innerHTML = `<p class="q-who">${esc(p.who)}</p><p class="q-es" lang="es">${line.html} ${qaudio(p.es, p.who)}</p>${p.en ? `<p class="q-en">${esc(p.en)}</p>` : ''}<div class="q-choices">${p.choice.map((c, i) => `<button class="q-ch" data-qch="${i}" lang="es">${esc(c.t)}</button>`).join('')}</div><p class="q-tip" id="q-dlg-tip" hidden></p>`;
+    box.innerHTML = `<p class="q-who">${esc(p.who)}</p><p class="q-es" lang="es">${line.html} ${qaudio(p.es, p.who)}</p>${p.en ? `<p class="q-en">${esc(p.en)}</p>` : ''}<div class="q-choices">${p.choice.map((c, i) => `<button class="q-ch" data-qch="${i}" lang="es"><kbd>${i + 1}</kbd> ${esc(c.t)}</button>`).join('')}</div><p class="q-tip" id="q-dlg-tip" hidden></p>`;
     say(p.es, false, p.who);
   } else {
     let body = '';
