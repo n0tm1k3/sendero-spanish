@@ -56,6 +56,10 @@ The game runs on the course's own cards: a battle is a review graded exactly lik
 - **Ids are saved.** Flags are keyed by town, NPC and boss ids (`met_luz`, `boss_espejo`, `visit_puerto`). Don't rename them.
 - **Dialogue Spanish follows rule 3**, and should use words the learner has met by that unit. Unknown words are underlined and the English stays visible.
 - New units need a mentor in the right town; a new town goes at the end of `TOWNS` and gets the previous town's east gate.
+- **Buildings lead into the course.** `DOOR_ROOMS` maps each door to a room in `ROOMS` (stories, today's story, games, shadowing, writing, listening, the plan, the Diccionario). A room hands off to the course with `startBlock`, and a banner on the course page leads back. Every door must have a room.
+- **The Diccionario** records each item the learner has beaten in battle (`S.quest.caught`). Creatures are drawn from the item id and grow with the card's stage, the same stages as the Garden.
+- **Music** is generated with Web Audio (`MUSIC`): an original short loop per town plus battle and boss themes. It starts only after the learner presses Start on the title screen, stops when they leave the tab, and has an on/off switch (`S.quest.musicOn`).
+- `window.senderoQuestDebug` exposes the game's state to browser tests.
 
 ## Checks
 

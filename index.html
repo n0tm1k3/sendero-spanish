@@ -437,6 +437,23 @@ textarea#w-text:focus { border-color: var(--accent); outline: none; }
 .q-how { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; }
 .qx :focus-visible { outline: 3px solid var(--q-gold); outline-offset: 2px; }
 .unit-quest { font-size: 0.82rem; color: var(--muted); }
+.q-tright { display: inline-flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+#q-title { position: absolute; inset: 0; z-index: 6; display: grid; place-items: center; background: radial-gradient(ellipse at 50% 40%, rgba(27,42,107,.82), rgba(12,15,30,.94) 75%); border-radius: 8px; padding: 16px; }
+.q-titlebox { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.q-logo { font: 700 clamp(2.4rem, 11vw, 4rem)/0.95 var(--q-pixel); color: var(--q-gold); text-shadow: 3px 3px 0 #4a2f00, 0 0 24px rgba(255,211,77,.35); letter-spacing: .02em; }
+#q-world.q-fadein { animation: q-fadein .35s ease-out; }
+@keyframes q-fadein { from { opacity: 0; } to { opacity: 1; } }
+#q-battle { background: radial-gradient(ellipse at 50% 30%, var(--q-sky, #1c2560), var(--q-night) 72%); }
+.q-bstage::before { content: ""; position: absolute; left: 50%; bottom: 4%; width: min(60%, 260px); height: 18%; transform: translateX(-50%); border-radius: 50%; background: var(--q-ground, #3f8a3c); opacity: .55; }
+.q-room canvas#q-roomcv { width: 100%; aspect-ratio: 160 / 72; image-rendering: pixelated; border-radius: 6px; border: 2px solid var(--q-rim2); }
+.q-dtabs button:disabled { opacity: .35; cursor: default; }
+.q-crgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 6px; }
+.q-cr { aspect-ratio: 1; border-radius: 8px; border: 1.5px solid var(--q-rim2); background: rgba(0,0,0,.28); padding: 1px; cursor: pointer; display: grid; place-items: center; }
+.q-cr canvas { width: 100%; height: 100%; image-rendering: pixelated; }
+.q-cr.none { border-style: dashed; opacity: .4; }
+.q-cr.sel { border-color: var(--q-gold); box-shadow: 0 0 0 2px var(--q-gold); }
+#q-crdetail span { color: var(--q-dim); font-size: .85rem; }
+.q-return { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 @media (max-width: 639px) { #q-goal { font-size: 0.72rem; } .q-hud-l, .q-hud-r { font-size: 0.74rem; } }
 @media (min-width: 640px) { #q-dlg { position: absolute; left: 10px; right: 10px; bottom: 10px; max-height: calc(100% - 64px); overflow-y: auto; z-index: 5; margin: 0; } }
 @media (hover: hover) and (pointer: fine) { #q-pad { display: none; } }
@@ -1711,10 +1728,11 @@ function registerMine() {
 registerMine();
 
 // ---------- views ----------
-let view = 'today', sess = null, openStory = null;
+let view = 'today', sess = null, openStory = null, questReturn = false;
 const TABS = [['today', 'Today'], ['path', 'Path'], ['quest', 'Quest'], ['read', 'Read'], ['play', 'Play'], ['practice', 'Speak & write'], ['garden', 'Garden'], ['method', 'Method']];
 function render() {
   const app = $('#app');
+  if (view === 'quest') questReturn = false;
   if (sess) { app.innerHTML = renderSession(); afterSession(); return; }
   const k = dayKey();
   app.innerHTML = `
@@ -1727,6 +1745,7 @@ function render() {
     </div>
   </header>
   <nav class="tabs" role="tablist">${TABS.map(([id, l]) => `<button role="tab" aria-selected="${view === id}" data-tab="${id}">${l}</button>`).join('')}</nav>
+  ${questReturn && view !== 'quest' ? '<div class="q-return"><button class="btn primary sm" data-tab="quest">← Back to Sendero Quest</button><span class="small">Time here counts toward today’s plan as usual.</span></div>' : ''}
   <main id="view">${({ today: vToday, path: vPath, quest: () => '<div id="qmount"></div>', read: vRead, play: vPlay, practice: vPractice, garden: vGarden, method: vMethod })[view]()}</main>
   <footer class="foot"><span id="sync"></span></footer>`;
   paintSync();
@@ -1916,7 +1935,7 @@ const REFS = [
   ['High-frequency words, cognates and false friends', 'Vocabulary is drawn from the top of Spanish frequency lists, where a small core covers most running text. Cognates are flagged because they are learned fast. False friends get their own cards, since you already “know” the wrong meaning.', [['Davies, vocabulary range and text coverage', 'https://www.lingref.com/cpp/hls/7/paper1091.pdf'], ['Spanish–English cognates', 'https://academic.oup.com/applij/advance-article/doi/10.1093/applin/amaf041/8172911']]],
   ['Phrases before grammar', 'Unit 1 teaches whole phrases. Beginners who rely on stored phrases early go on to build more varied vocabulary, and the phrases become templates for grammar later.', [['Myles, chunks in L2 learning', 'https://lagb-education.org/wp-content/uploads/2013/08/Myles.pdf']]],
   ['Reading unlocks by known words', 'Stories show how many of their words you already know. Comprehension is weak below 95% and comfortable around 98%.', [['Lexical coverage and comprehension (Hu & Nation and later)', 'https://www.cambridge.org/core/product/DFCA6605076705D5762C98F286D16B27']]],
-  ['Quest: the same reviews, as a game', 'The Quest tab turns the course into a small role-playing game. Mentors teach each unit, battles in tall grass are your due reviews, and each town’s boss mixes its grammar with vocabulary. It runs on the same cards and scheduler, so nothing is counted twice. A meta-analysis of 26 studies found digital games improved second-language vocabulary learning, with a large effect against other activities. Most of what makes the Quest work is still spaced retrieval; the story is there to make you come back.', [['Tsai & Tsai 2018, game-based L2 vocabulary meta-analysis', 'https://scholar.lib.ntnu.edu.tw/en/publications/digital-game-based-second-language-vocabulary-learning-and-condit-2/']]],
+  ['Quest: the same reviews, as a game', 'The Quest tab turns the course into a small role-playing game. Mentors teach each unit, battles in tall grass are your due reviews, and each town’s boss mixes its grammar with vocabulary. It runs on the same cards and scheduler, so nothing is counted twice, and its buildings lead into the stories, games, shadowing and writing, so the whole plan can be done from inside the world. A meta-analysis of 26 studies found digital games improved second-language vocabulary learning, with a large effect against other activities. Most of what makes the Quest work is still spaced retrieval; the story is there to make you come back.', [['Tsai & Tsai 2018, game-based L2 vocabulary meta-analysis', 'https://scholar.lib.ntnu.edu.tw/en/publications/digital-game-based-second-language-vocabulary-learning-and-condit-2/']]],
   ['Game design that rewards retention', 'XP grows with how hard the recall was: a card remembered when its predicted recall was low pays up to three times more. Feedback, progress and adaptive challenge are the game elements with the most consistent evidence; leaderboards and badges are mixed, so there are none. Streaks come with shields so one missed day doesn’t wipe out weeks, and you choose your own goal, because pressure and lack of choice undercut motivation.', [['Gamification in language learning, 25-study review', 'https://ojs3.unpatti.ac.id/index.php/huele/article/view/22688'], ['Gamification and intrinsic motivation, meta-analysis', 'https://link.springer.com/article/10.1007/s11423-023-10337-7']]],
 ];
 function vMethod() {
@@ -2604,7 +2623,7 @@ function mergeState(a, b) {
   if (b.story && (!a.story || b.story.day > a.story.day)) out.story = b.story;
   if (b.streak && (b.streak.last || '') > ((a.streak || {}).last || '')) out.streak = b.streak;
   out.sprintBest = Math.max(a.sprintBest || 0, b.sprintBest || 0);
-  if (a.quest || b.quest) { const qa = a.quest || {}, qb = b.quest || {}; out.quest = Object.assign({}, qb, qa, { flags: Object.assign({}, qb.flags, qa.flags), pending: [...new Set([...(qa.pending || []), ...(qb.pending || [])])], name: qa.name || qb.name || '' }); }
+  if (a.quest || b.quest) { const qa = a.quest || {}, qb = b.quest || {}; out.quest = Object.assign({}, qb, qa, { flags: Object.assign({}, qb.flags, qa.flags), pending: [...new Set([...(qa.pending || []), ...(qb.pending || [])])], caught: Object.assign({}, qb.caught, qa.caught), name: qa.name || qb.name || '' }); }
   out.updatedAt = now();
   return out;
 }
@@ -3018,7 +3037,7 @@ const mentorOf = u => MENTORS.find(n => n.unit === u);
 // ---------- state (lives in S.quest, so it syncs and travels in progress files) ----------
 function Q() {
   if (!S.quest || typeof S.quest !== 'object') S.quest = { town: 0, pos: null, flags: {}, pending: [], name: '' };
-  const q = S.quest; q.flags = q.flags || {}; q.pending = Array.isArray(q.pending) ? q.pending : []; if (!TOWNS[q.town]) q.town = 0;
+  const q = S.quest; q.flags = q.flags || {}; q.pending = Array.isArray(q.pending) ? q.pending : []; q.caught = q.caught || {}; if (q.musicOn === undefined) q.musicOn = true; if (!TOWNS[q.town]) q.town = 0;
   return q;
 }
 const flag = k => !!Q().flags[k];
@@ -3054,9 +3073,9 @@ const qaudio = (t, who) => VOICE.can(t) ? `<span class="q-audio"><button class="
 let root = null; const qs = s => root.querySelector(s);
 function build() {
   root = document.createElement('section'); root.id = 'qroot'; root.className = 'qx';
-  root.innerHTML = `<div class="q-title"><h2>Sendero Quest</h2><span id="q-ch"></span></div>
+  root.innerHTML = `<div class="q-title"><h2>Sendero Quest</h2><span class="q-tright"><span id="q-ch"></span><button class="q-abtn q-m" data-qmusic="1"></button></span></div>
   <div id="q-stage"><div id="q-game"><canvas id="q-world" width="${VW * TS}" height="${VH * TS}" aria-label="Map of the current town"></canvas><div id="q-hud"></div><div id="q-goal"></div><div id="q-toast" role="status" hidden></div></div>
-  <div id="q-dlg" class="q-win" role="dialog" aria-live="polite" hidden></div></div>
+  <div id="q-dlg" class="q-win" role="dialog" aria-live="polite" hidden></div><div id="q-title" hidden></div></div>
   <p class="q-keys"><kbd>←↑↓→</kbd> or <kbd>WASD</kbd> walk · <kbd>Space</kbd> talk · <kbd>M</kbd> menu · <button class="q-abtn q-m" data-qmenu="1">Menú</button></p>
   <div id="q-pad"><div class="q-dpad"><button class="u" data-qpad="up" aria-label="Up">▲</button><button class="l" data-qpad="left" aria-label="Left">◀</button><button class="r" data-qpad="right" aria-label="Right">▶</button><button class="d" data-qpad="down" aria-label="Down">▼</button></div><span></span>
   <div class="q-btns"><button class="q-abtn q-a" data-qa="1" aria-label="Talk or continue">A</button><button class="q-abtn q-m" data-qmenu="1">Menú</button></div></div>
@@ -3168,7 +3187,7 @@ function placePlayer() {
   player.x = p.x; player.y = p.y; player.d = p.d || 'down'; player.px = p.x * TS; player.py = p.y * TS; player.moving = false;
 }
 function frame(t) {
-  if (!root || !root.isConnected) { running = false; return; }
+  if (!root || !root.isConnected) { running = false; MUSIC.stop(); return; }
   const dt = Math.min(50, t - last); last = t;
   if (bgTown !== Q().town || !bg) paintBg();
   if (player.moving) {
@@ -3183,13 +3202,15 @@ function frame(t) {
   cx.setTransform(1, 0, 0, 1, -Math.round(camX), -Math.round(camY));
   if (!reducedMotion) drawWater(t);
   const T = town(); const ents = [];
-  T.npcs.forEach(n => ents.push({ y: n.y * TS, draw: () => n.dog ? drawDog(cx, n.x * TS, n.y * TS, t) : drawChar(cx, n.x * TS, n.y * TS, n.look, n.dir || 'down', 0) }));
+  wander(t);
+  T.npcs.forEach(n => { const [nx, ny] = npcPos(n); const mv = nx !== n.x * TS || ny !== n.y * TS; ents.push({ y: ny, draw: () => n.dog ? drawDog(cx, nx, ny, t) : drawChar(cx, nx, ny, n.look, n.dir || 'down', mv ? Math.floor(t / 130) : 0) }); });
   if (!beaten(T.i)) ents.push({ y: T.boss.y * TS, draw: () => drawBossMini(cx, T.boss, T.boss.x * TS, T.boss.y * TS, t) });
   ents.push({ y: player.py, draw: () => drawChar(cx, Math.round(player.px), Math.round(player.py), { skin: '#d8a682', hair: '#33261c', shirt: '#d2463a', pants: '#2b3a67' }, player.d, player.moving ? Math.floor(t / 130) : 0) });
   ents.sort((a, b) => a.y - b.y).forEach(e => e.draw());
   if (t - markT > 800) { markT = t; marks = T.npcs.filter(n => n.unit !== undefined && mentorHasNews(n)); bossMark = !beaten(T.i) && bossReady(T.i); }
   const mark = (x, y, col) => { const by = reducedMotion ? 0 : Math.round(Math.sin(t / 250)); px(cx, x * TS + 7, y * TS - 7 + by, 2, 5, col); px(cx, x * TS + 7, y * TS - 1 + by, 2, 2, col); };
   marks.forEach(n => mark(n.x, n.y, '#ffd34d')); if (bossMark) mark(T.boss.x, T.boss.y, '#ff6b6b');
+  drawWipe(t);
   requestAnimationFrame(frame);
 }
 
@@ -3230,7 +3251,7 @@ function travel(i, side, silent) {
   const T = TOWNS[i]; if (!T) return;
   const q = Q(); q.town = i; const p = (side && T[side]) || T.start;
   q.pos = { town: i, x: p[0], y: p[1], d: side === 'west' ? 'right' : side === 'east' ? 'left' : 'down' };
-  setFlag('visit_' + T.id); placePlayer(); paintBg(); hud(); save();
+  setFlag('visit_' + T.id); placePlayer(); paintBg(); hud(); save(); fadeIn(); if (titleDone) MUSIC.play(townSong());
   if (!silent && !flag('arrived_' + T.id)) runDialog(T.arrive.map(l => ({ who: T.name, en: l.en })).concat([{ fn: () => setFlag('arrived_' + T.id) }]));
 }
 function interact() {
@@ -3242,12 +3263,14 @@ function interact() {
   if (!beaten(T.i) && T.boss.x === x && T.boss.y === y) return bossTalk();
   const ch = T.map[y] && T.map[y][x];
   if (ch === 'S' && T.signs[k]) return runDialog([{ who: 'Letrero', es: T.signs[k].es, en: T.signs[k].en }]);
-  if (T.doors[k]) return runDialog([{ who: T.doors[k], en: 'The door is closed. Interiors aren’t built yet.' }]);
+  if (T.doors[k]) { const rk = (DOOR_ROOMS[T.id] || {})[k]; return rk ? openRoom(rk, T.doors[k]) : runDialog([{ who: T.doors[k], en: 'The door is locked.' }]); }
   if (ch === 'F') { const m = memoryPct(); return runDialog([{ who: 'La fuente', en: `The fountain shows your memory. Predicted recall across everything you’ve learned: ${m === null ? 'nothing learned yet' : Math.round(m * 100) + '%'}. ${olvidos()} Olvidos are waiting in the tall grass.` }]); }
 }
 function onKey(e) {
   if (view !== 'quest' || sess || !root || !root.isConnected) return;
   const tag = e.target.tagName; if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  if (mode === 'title') { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); startFromTitle(); } return; }
+  if (mode === 'trans') return;
   if (mode === 'battle') {
     if (bt && bt.phase === 'show' && e.key === 'Enter' && e.target.id !== 'qb-next') { e.preventDefault(); bNext(); }
     else if (bt && bt.phase === 'ask' && /^[1-9]$/.test(e.key)) { const b = root.querySelector(`[data-qopt="${+e.key - 1}"]`); if (b) b.click(); }
@@ -3259,7 +3282,7 @@ function onKey(e) {
     if (mode === 'dialog' && (qs('#q-dlg input') || (document.activeElement && document.activeElement.closest && document.activeElement.closest('#q-dlg') && document.activeElement.tagName === 'BUTTON'))) return;
     e.preventDefault(); interact(); return;
   }
-  if (e.key === 'Escape' || e.key === 'm') { if (mode === 'walk') openMenu(); else if (mode === 'menu') closeMenu(); }
+  if (e.key === 'Escape' || e.key === 'm') { if (mode === 'walk') openMenu(); else if (mode === 'menu') { if (room) closeRoom(); else closeMenu(); } }
 }
 document.addEventListener('keydown', onKey);
 document.addEventListener('keyup', e => { const k = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right' }[e.key]; if (k === held) held = null; });
@@ -3418,10 +3441,16 @@ function startBattle(boss) {
   const T = town(); const f = T.foes[Math.floor(Math.random() * T.foes.length)];
   const foe = boss ? { name: T.boss.name, es: T.boss.name, shape: T.boss.shape, col: T.boss.col } : { name: f[0], es: f[1], shape: f[2], col: f[3] };
   const hp = Math.max(40, Math.round(q.length * 20 * 0.8)); // about 80% right wins, near the 85% target
-  bt = { q, i: 0, boss, foe, hp, max: hp, php: 100, xp: 0, tried: {}, retries: {}, phase: 'intro', res: null, mode: null, opts: null, t0: 0, ok: 0, n: 0, shake: 0 };
-  mode = 'battle'; held = null; qs('#q-battle').hidden = false;
-  renderBattle(); requestAnimationFrame(drawFoe);
+  bt = { q, i: 0, boss, foe, hp, max: hp, php: 100, xp: 0, tried: {}, retries: {}, phase: 'intro', res: null, mode: null, opts: null, t0: 0, ok: 0, n: 0, shake: 0, caught: 0 };
+  held = null; MUSIC.play(boss ? 'boss' : 'battle');
+  if (reducedMotion) openBattle(); else { mode = 'trans'; wipe = { t0: performance.now(), done: openBattle }; }
   return true;
+}
+const SKY = ['#1c2560', '#173f66', '#1f3d36', '#4a3618', '#262b45', '#14485a', '#33244a'];
+function openBattle() {
+  const T = town(), B = qs('#q-battle');
+  B.style.setProperty('--q-sky', SKY[T.i]); B.style.setProperty('--q-ground', T.theme.tall[0]);
+  mode = 'battle'; B.hidden = false; renderBattle(); requestAnimationFrame(drawFoe);
 }
 function bossTalk() {
   const T = town(), B = T.boss;
@@ -3506,6 +3535,7 @@ function bAnswer(raw, pick) {
   else { const hurt = bt.boss ? 22 : 18; bt.php -= hurt; hitFx('me', hurt); bt.retries[cid] = (bt.retries[cid] || 0) + 1; if (bt.retries[cid] <= 1) bt.q.splice(Math.min(bt.q.length, bt.i + 3), 0, cid); }
   if (first) { S.log.push({ t, ok: g > 1 }); S.log = S.log.slice(-200); bt.n++; if (g > 1) bt.ok++; const k = dayKey(); S.doneDay[k] = (S.doneDay[k] || 0) + 1; bumpStreak(); }
   Q().pending = Q().pending.filter(x => x !== cid);
+  if (g > 1 && !caught()[it.id]) { caught()[it.id] = t; bt.caught++; }
   bt.res = Object.assign({ input: raw || '', pick, xp, dmg }, res); bt.phase = 'show';
   save(); renderBattle(); paintClock();
   if (it.kind === 'w' && c.dir === 'p') say(it.es);
@@ -3530,11 +3560,11 @@ function endBattle(how) {
   } else if (how === 'flee') { title = 'Huiste.'; body = 'You slip away into the grass.'; }
   else { title = `${bt.foe.name} se escapa.`; body = 'You ran out of cards before it ran out of strength. It fled anyway; the recalls still count.'; }
   bt.phase = 'end';
-  bt.endHtml = `<p class="q-msg" lang="es">${esc(title)}</p><p class="q-sub">${esc(body)}</p>${bt.n ? `<div class="q-sum"><span><b class="num">${bt.n}</b> cards</span><span><b class="num">${Math.round(acc * 100)}%</b> first try</span><span><b class="num">+${bt.xp}</b> XP</span></div>` : ''}<div class="q-act"><span></span><button class="q-nx primary" id="qb-done">Continuar ▸</button></div>`;
+  bt.endHtml = `<p class="q-msg" lang="es">${esc(title)}</p><p class="q-sub">${esc(body)}</p>${bt.n ? `<div class="q-sum"><span><b class="num">${bt.n}</b> cards</span><span><b class="num">${Math.round(acc * 100)}%</b> first try</span><span><b class="num">+${bt.xp}</b> XP</span>${bt.caught ? `<span><b class="num">+${bt.caught}</b> new in the Diccionario</span>` : ''}</div>` : ''}<div class="q-act"><span></span><button class="q-nx primary" id="qb-done">Continuar ▸</button></div>`;
   save(); renderBattle();
 }
 function closeBattle() {
-  const won = bt.boss && beaten(Q().town); bt = null; qs('#q-battle').hidden = true; mode = 'walk';
+  const won = bt.boss && beaten(Q().town); bt = null; qs('#q-battle').hidden = true; mode = 'walk'; MUSIC.play(townSong());
   render(); // refresh the header's XP, minutes and streak; the game itself is kept as it was
   if (won) { const w = town().boss.win; runDialog([{ who: w.who, es: w.es, en: w.en }]); }
 }
@@ -3573,7 +3603,7 @@ let menuTab = 'quests';
 function openMenu() { mode = 'menu'; held = null; qs('#q-menu').hidden = false; renderMenu(); }
 function closeMenu() { mode = 'walk'; qs('#q-menu').hidden = true; hud(); }
 function renderMenu() {
-  const tabs = [['quests', 'Misiones'], ['map', 'Mapa'], ['memory', 'Memoria'], ['how', 'Cómo funciona']];
+  const tabs = [['quests', 'Misiones'], ['map', 'Mapa'], ['dict', 'Diccionario'], ['memory', 'Memoria'], ['how', 'Cómo funciona']];
   let body = '';
   if (menuTab === 'quests') {
     const T = town();
@@ -3585,6 +3615,8 @@ function renderMenu() {
     body = `<ul class="q-qlist q-map">${TOWNS.map(T => { const open = unlocked(T.i), seen = flag('visit_' + T.id), here = T.i === Q().town; const done = T.units.filter(u => unitStarted(u) >= 0.6).length;
       return `<li class="${open ? '' : 'off'}"><div><b>${T.ch}. ${esc(T.name)}${beaten(T.i) ? ' ✓' : ''}</b><span>Units ${T.units[0]}–${T.units[T.units.length - 1]} · ${done}/${T.units.length} units started${open ? '' : ' · locked'}</span></div>${here ? '<span class="q-here">Aquí</span>' : seen ? `<button class="q-nx" data-qtravel="${T.i}">Viajar</button>` : '<span></span>'}</li>`; }).join('')}</ul>
     <p class="q-tip">Travel to any town you’ve visited. Each new town opens when you beat the boss of the one before it.</p>`;
+  } else if (menuTab === 'dict') {
+    body = dictHtml();
   } else if (menuTab === 'memory') {
     const acc = recentAcc(); const learned = Object.values(ITEM).filter(it => st(primary(it).cid)).length; const m = memoryPct();
     const pos = acc === null ? null : Math.max(0, Math.min(100, (acc - 0.5) / 0.5 * 100));
@@ -3599,16 +3631,25 @@ function renderMenu() {
       <li><b>Damage rewards hard recall.</b> A card you were likely to forget hits for up to 60; an easy one for 20. That mirrors where memory grows most.</li>
       <li><b>Bosses interleave.</b> Each town’s boss alternates its grammar with vocabulary, because mixing similar forms trains you to tell them apart.</li>
       <li><b>Dialogue is input.</b> Lines are in Spanish. The English hides itself once you know 95% of a line’s words. Tap any word for its meaning.</li>
+      <li><b>The buildings are the rest of the course.</b> Doors lead to the stories, today’s story, the games, shadowing, writing and the listening log, and the time counts toward today’s plan as usual.</li>
+      <li><b>The Diccionario.</b> Every Olvido you beat is caught, and it grows as its word settles into long-term memory, using the same stages as the Garden.</li>
       <li><b>Losing costs nothing.</b> Missed cards just come back sooner.</li></ul>
       <p class="q-tip">Controls: arrow keys or WASD to walk, Space or Enter to talk, M for this menu. On a phone, use the pad and the A button.</p>`;
   }
   qs('#q-menu').innerHTML = `<div class="q-win q-menuwin"><div class="q-mhead"><h3>Menú</h3><button class="q-nx" id="qm-close">Cerrar ✕</button></div><div class="q-mtabs">${tabs.map(([id, l]) => `<button data-qtab="${id}" class="${menuTab === id ? 'on' : ''}">${l}</button>`).join('')}</div><div class="q-mbody">${body}</div></div>`;
+  if (menuTab === 'dict') paintCreatures();
 }
 
 // ---------- events (scoped to the Quest root) ----------
 function onClick(e) {
   const b = e.target.closest('button'); if (!b) return;
   if (b.dataset.qsay) { say(b.dataset.qsay, !!b.dataset.qslow, b.dataset.qwho); return; }
+  if (b.dataset.qmusic) return musicToggle();
+  if (b.id === 'qt-go') return startFromTitle();
+  if (b.id === 'qr-close') return closeRoom();
+  if (b.id === 'qr-go') return enterActivity();
+  if (b.dataset.qdt !== undefined) { dictTown = +b.dataset.qdt; dictSel = null; renderMenu(); return; }
+  if (b.dataset.qcr) { dictSel = b.dataset.qcr; renderMenu(); return; }
   if (b.dataset.qa) return interact();
   if (b.dataset.qmenu) { if (mode === 'menu') closeMenu(); else if (mode === 'walk') openMenu(); return; }
   if (b.id === 'q-dlg-next') return dlgNext();
@@ -3644,16 +3685,212 @@ function mount(host) {
   if (bgTown !== Q().town) paintBg();
   if (!flag('intro')) setFlag('visit_' + TOWNS[0].id);
   hud();
+  paintMusicBtn();
   if (!running) { running = true; last = performance.now(); requestAnimationFrame(frame); }
-  if (!flag('intro')) { setFlag('visit_' + TOWNS[0].id); setFlag('arrived_' + TOWNS[0].id); runDialog(TOWNS[0].arrive.concat(alreadyNote()).map(l => l.fn ? l : ({ who: TOWNS[0].name, en: l.en })).concat([{ fn: () => setFlag('intro') }])); }
+  if (!titleDone) showTitle(); else if (mode === 'walk' || mode === 'dialog' || mode === 'menu') MUSIC.play(townSong());
 }
 // Someone who has studied in the course already gets told where their progress puts them.
 function alreadyNote() {
   const done = UNITS.filter(u => unitStarted(u.n) >= 0.6).length;
   return done ? [{ en: `Your cards come with you: you’ve already started ${done} ${done === 1 ? 'unit' : 'units'} in the course. Mentors skip lessons you’ve seen, and each town’s boss opens the road to the next one.` }] : [];
 }
+
+// ---------- rooms: every building leads into part of the course ----------
+// read: graded stories · daily: today's story · play: puzzle and speed round · speak: shadowing
+// write: writing with corrections · listen: the listening log · rest: today's plan · dict: the Diccionario
+const DOOR_ROOMS = {
+  sanlucas: { '4,4': 'play', '13,4': 'daily', '4,16': 'speak' },
+  puerto: { '4,4': 'read', '13,4': 'play', '4,14': 'write' },
+  monte: { '4,5': 'rest', '10,5': 'daily', '4,17': 'write' },
+  valle: { '4,4': 'speak', '11,4': 'listen', '18,4': 'play', '25,15': 'rest' },
+  ciudad: { '4,4': 'listen', '12,4': 'rest', '19,4': 'read', '25,4': 'play', '5,16': 'daily', '12,16': 'speak' },
+  isla: { '20,7': 'write', '8,7': 'play' },
+  ruinas: { '5,4': 'read', '5,16': 'speak', '21,5': 'dict' }
+};
+const ROOMS = {
+  read: { es: '¿Quieres leer un cuento?', en: 'Want to read a story? Every one is written with words from the units, and the bar shows how many you already know.', go: 'Leer ▸', block: 'read', wall: '#7a4fb3', prop: 'books' },
+  daily: { es: '¡Hola! Hoy hay un cuento nuevo.', en: 'There’s a new story today, written by Claude from your own vocabulary.', go: 'Leer el cuento ▸', block: 'read', wall: '#c9772e', prop: 'counter' },
+  play: { es: '¿Jugamos?', en: 'Shall we play? Today’s word puzzle and the 60-second speed round are here.', go: 'Jugar ▸', block: 'game', wall: '#2f8a63', prop: 'board' },
+  speak: { es: 'Escucha y repite.', en: 'Listen and repeat, out loud. Shadowing trains your ear and your mouth together.', go: 'Practicar ▸', block: 'speak', wall: '#b5452f', prop: 'rug' },
+  write: { es: '¿Escribes algo?', en: 'Write a few sentences and Claude corrects them, with a short reason for every change.', go: 'Escribir ▸', block: 'write', wall: '#2f5fa8', prop: 'desk' },
+  listen: { es: '¿Escuchas la radio?', en: 'Listening time: put on a video or podcast you mostly understand, and log the minutes here.', go: 'Escuchar ▸', block: 'listen', wall: '#6a6f86', prop: 'radio' },
+  rest: { es: 'Descansa un poco.', en: 'A quiet room to check today’s plan.', go: null, wall: '#8a6a3a', prop: 'bed' },
+  dict: { es: 'Aquí están todos los Olvidos.', en: 'The archive of every Olvido you’ve beaten. Each one grows as its word settles into memory.', go: 'Abrir el Diccionario ▸', wall: '#5a3a8a', prop: 'books' }
+};
+let room = null;
+function openRoom(k, name) {
+  const r = ROOMS[k]; if (!r) return;
+  room = { k, name }; mode = 'menu'; held = null;
+  const plan = PLAN[S.settings.daily] || PLAN[90], m = minsDay();
+  const line = b => plan[b] ? `<p class="q-tip">Today: <b class="num">${Math.round(m[b] || 0)} / ${plan[b]}</b> min of ${b === 'game' ? 'play' : b}${(m[b] || 0) >= plan[b] ? ' · done ✓' : ''}</p>` : '';
+  let extra = '';
+  if (k === 'rest') extra = `<ul class="q-qlist">${BLOCKS.filter(([id]) => plan[id]).map(([id, nm]) => { const d = m[id] || 0, p = plan[id]; return `<li><div><b>${esc(nm)}</b><span>${Math.round(d)} / ${p} min</span></div><span class="q-hp q"><i style="width:${Math.min(100, d / p * 100)}%"></i></span><span class="num">${d >= p ? '✓' : ''}</span></li>`; }).join('')}</ul>`;
+  else if (r.block) extra = line(r.block);
+  if (k === 'daily' && sampleState === 'none') extra += '<p class="q-tip warn">Today’s story needs Claude, which only works in the claude.ai version of this page. The graded stories work everywhere.</p>';
+  const box = qs('#q-menu');
+  box.innerHTML = `<div class="q-win q-menuwin q-room"><div class="q-mhead"><h3>${esc(name)}</h3><button class="q-nx" id="qr-close">Salir ✕</button></div>
+    <canvas id="q-roomcv" width="160" height="72" aria-hidden="true"></canvas>
+    <p class="q-es" lang="es">${esc(r.es)} ${qaudio(r.es)}</p><p class="q-en">${esc(r.en)}</p>${extra}
+    <div class="q-act"><span class="q-cnt">${esc(town().name)}</span>${r.go ? `<button class="q-nx primary" id="qr-go">${esc(r.go)}</button>` : ''}</div></div>`;
+  box.hidden = false; drawRoom(qs('#q-roomcv'), r); say(r.es);
+  const go = qs('#qr-go') || qs('#qr-close'); if (go) go.focus({ preventScroll: true });
+}
+function closeRoom() { room = null; closeMenu(); }
+function enterActivity() {
+  const r = ROOMS[room.k]; const k = room.k; closeRoom();
+  if (k === 'dict') { openMenu(); menuTab = 'dict'; renderMenu(); return; }
+  questReturn = true; MUSIC.stop();
+  if (k === 'daily') { view = 'read'; openStory = null; openDaily = !!(S.story && S.story.day === dayKey()); render(); window.scrollTo(0, 0); return; }
+  startBlock(r.block);
+}
+function drawRoom(c, r) {
+  const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+  px(g, 0, 0, 160, 44, r.wall); for (let x = 0; x < 160; x += 8) px(g, x, 0, 1, 44, 'rgba(0,0,0,.12)');
+  px(g, 0, 44, 160, 28, '#9a6b3c'); for (let y = 46; y < 72; y += 6) px(g, 0, y, 160, 1, '#7a4f2a');
+  px(g, 0, 42, 160, 3, 'rgba(0,0,0,.25)');
+  px(g, 20, 8, 22, 18, '#e6f1fb'); px(g, 20, 8, 22, 18, 'rgba(90,140,200,.35)'); px(g, 30, 8, 2, 18, r.wall); px(g, 20, 16, 22, 2, r.wall);
+  if (r.prop === 'books') for (let s = 0; s < 3; s++) { px(g, 100, 10 + s * 11, 50, 2, '#6b4423'); for (let i = 0; i < 12; i++) px(g, 101 + i * 4, 3 + s * 11, 3, 7, ['#c94a4a', '#3d5fb8', '#e0b030', '#2f8a63'][(i + s) % 4]); }
+  if (r.prop === 'counter') { px(g, 70, 40, 80, 14, '#7a4a26'); px(g, 70, 38, 80, 3, '#a8784a'); [78, 96, 114].forEach(x => { px(g, x, 32, 7, 6, '#f0f0f0'); px(g, x + 7, 33, 2, 3, '#f0f0f0'); px(g, x + 2, 29, 1, 2, '#ccc'); }); }
+  if (r.prop === 'board') { px(g, 96, 8, 48, 30, '#6b4423'); px(g, 98, 10, 44, 26, '#2f6e2e'); for (let i = 0; i < 4; i++) for (let j = 0; j < 3; j++) px(g, 101 + i * 10, 13 + j * 7, 8, 5, '#f0e8c0'); }
+  if (r.prop === 'rug') { px(g, 60, 50, 60, 16, '#c94a4a'); px(g, 64, 53, 52, 10, '#e0b030'); px(g, 120, 20, 16, 22, '#2f6e2e'); px(g, 124, 14, 8, 8, '#3fa84f'); }
+  if (r.prop === 'desk') { px(g, 90, 36, 56, 6, '#7a4a26'); px(g, 92, 42, 4, 18, '#6b4423'); px(g, 140, 42, 4, 18, '#6b4423'); px(g, 104, 30, 22, 6, '#f0f0f0'); px(g, 128, 26, 2, 10, '#2a2f45'); }
+  if (r.prop === 'radio') { px(g, 100, 24, 40, 20, '#8a6a3a'); px(g, 104, 28, 16, 12, '#2a2f45'); px(g, 124, 28, 4, 4, '#e0b030'); px(g, 132, 28, 4, 4, '#e0b030'); px(g, 120, 12, 1, 12, '#2a2f45'); }
+  if (r.prop === 'bed') { px(g, 96, 34, 54, 22, '#f0f0f0'); px(g, 96, 34, 14, 10, '#d0d8f0'); px(g, 110, 40, 40, 16, '#3d5fb8'); px(g, 94, 30, 4, 28, '#6b4423'); }
+  drawChar(g, 56, 30, { skin: '#d9a47c', hair: '#4a2f1a', shirt: r.wall, pants: '#2a2f45' }, 'down', 0);
+}
+
+// ---------- Diccionario: Olvidos you've beaten, growing with memory ----------
+let dictTown = null, dictSel = null;
+const caught = () => { const q = Q(); q.caught = q.caught || {}; return q.caught; };
+const townItems = T => T.units.flatMap(u => UNITS[u].items);
+function dictHtml() {
+  const c = caught(); if (dictTown === null) dictTown = Q().town;
+  const T = TOWNS[dictTown], items = townItems(T);
+  const got = items.filter(it => c[it.id]).length, grown = items.filter(it => c[it.id] && stage(st(primary(it).cid)) >= 3).length;
+  const total = Object.keys(c).filter(id => ITEM[id]).length;
+  const chips = TOWNS.map(t => `<button data-qdt="${t.i}" class="${t.i === dictTown ? 'on' : ''}" ${unlocked(t.i) ? '' : 'disabled'}>${t.ch}${medal(t) ? '★' : ''}</button>`).join('');
+  const cells = items.map(it => { const x = st(primary(it).cid); const s = c[it.id] ? stage(x) : 0; return `<button class="q-cr ${c[it.id] ? '' : x ? 'shade' : 'none'} ${dictSel === it.id ? 'sel' : ''}" data-qcr="${it.id}" aria-label="${esc(c[it.id] ? label(it) : 'Not caught yet')}"><canvas width="16" height="16" data-qcv="${it.id}" data-qst="${s}"></canvas></button>`; }).join('');
+  return `<div class="q-mtabs q-dtabs">${chips}</div>
+    <p class="q-tip"><b>${esc(T.name)}</b> · ${got}/${items.length} caught · ${grown} grown to Leaf or beyond${medal(T) ? ' · ★ medal' : ''} · ${total} caught in all</p>
+    <div class="q-crgrid">${cells}</div><div id="q-crdetail" class="q-tip">${dictSel && ITEM[dictSel] ? crDetail(ITEM[dictSel]) : 'Beat Olvidos in tall grass to catch them. Each one grows as its word settles into memory: seed, sprout, leaf, bloom, tree. Catch every Olvido of a town and grow them all to Leaf for its medal.'}</div>`;
+}
+const medal = T => townItems(T).every(it => caught()[it.id] && stage(st(primary(it).cid)) >= 3);
+function label(it) { return it.kind === 'w' ? it.es : it.kind === 'd' ? it.say : it.kind === 'c' ? it.q.replace('___', it.a[0]) : it.kind === 'pi' ? it.q : it.q; }
+function crDetail(it) {
+  const x = st(primary(it).cid), c = caught()[it.id];
+  if (!c) return x ? 'You’ve started this one in the course, but haven’t beaten it in battle yet. It will turn up in the tall grass when it’s due.' : 'Not met yet.';
+  const s = stage(x), t = label(it);
+  return `<b lang="es">${esc(t)}</b> ${qaudio(t)}${it.kind === 'w' ? ` = ${esc(it.en.slice(0, 2).join(', '))}` : it.en ? ` · ${esc(it.en)}` : ''}<br><span>${STAGES[s]}${x ? ` · next review ${relTime(x.due)}` : ''} · caught ${new Date(c).toLocaleDateString()}</span>`;
+}
+function paintCreatures() { root.querySelectorAll('[data-qcv]').forEach(cv2 => drawCreature(cv2, ITEM[cv2.dataset.qcv], +cv2.dataset.qst, cv2.parentElement.classList.contains('shade'), cv2.parentElement.classList.contains('none'))); }
+function drawCreature(c, it, s, shade, none) {
+  const g = c.getContext('2d'); g.clearRect(0, 0, 16, 16); if (none) return;
+  let h = 0; for (const ch of it.id) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const T = TOWNS.find(t => t.units.includes(it.unit)) || TOWNS[0]; const f = T.foes[h % T.foes.length]; const [d1, d2, d3] = shade ? ['#2a2f50', '#343a62', '#3c4370'] : f[3];
+  const P = (x, y, w, hh, col) => { g.fillStyle = col; g.fillRect(x, y, w, hh); };
+  if (shade) { P(5, 6, 6, 7, d1); P(6, 4, 4, 2, d1); return; }
+  if (s <= 1) { P(4, 5, 8, 10, d3); P(5, 4, 6, 1, d3); P(4, 9, 8, 1, d1); P(7, 8, 2, 1, d1); P(6, 10, 1, 1, d1); return; } // a seed: still an egg
+  const r = s === 2 ? 4 : s === 3 ? 5 : 6, cx0 = 8, cy0 = 9;
+  for (let y = -r; y <= r; y++) { const w = Math.floor(Math.sqrt(r * r - y * y)); P(cx0 - w, cy0 + y, 2 * w, 1, d1); }
+  for (let y = -r + 1; y < r - 1; y++) { const w = Math.max(0, Math.floor(Math.sqrt((r - 1) * (r - 1) - y * y)) - 1); P(cx0 - w, cy0 + y - 1, 2 * w, 1, d2); }
+  const shape = h >> 3 & 3;
+  if (shape === 1) { P(7, cy0 - r - 2, 2, 2, d1); P(9, cy0 - r - 3, 2, 1, d2); }
+  if (shape === 2) { P(cx0 - r - 1, cy0 - 1, 1, 3, d1); P(cx0 + r, cy0 - 1, 1, 3, d1); }
+  if (shape === 3) { P(cx0 - 3, cy0 - r - 1, 1, 2, d1); P(cx0 + 2, cy0 - r - 1, 1, 2, d1); }
+  P(cx0 - 2, cy0 - 1, 1, 2, '#1b1030'); P(cx0 + 1, cy0 - 1, 1, 2, '#1b1030');
+  if (s >= 4) { P(cx0 - 3, cy0 + r, 2, 1, d1); P(cx0 + 1, cy0 + r, 2, 1, d1); }
+  if (s >= 5) { P(6, 1, 1, 2, '#ffd34d'); P(8, 0, 1, 3, '#ffd34d'); P(10, 1, 1, 2, '#ffd34d'); P(6, 3, 5, 1, '#ffd34d'); }
+}
+
+// ---------- music: a small chiptune per town, made in the page ----------
+const MUSIC = (() => {
+  let ac = null, out = null, timer = null, cur = null, step = 0, nextT = 0;
+  const mtof = n => 440 * Math.pow(2, (n - 69) / 12);
+  // Original eight-bar loops (eighth notes; null = rest). lead / bass / tempo.
+  const _ = null;
+  const SONGS = {
+    sanlucas: { bpm: 112, lead: [72, _, 76, 79, 77, _, 76, 74, 72, _, 74, 76, 74, _, _, _, 69, _, 72, 76, 74, _, 72, 71, 72, _, _, 67, 72, _, _, _], bass: [48, 55, 53, 52, 45, 52, 50, 48] },
+    puerto: { bpm: 100, lead: [77, 79, 81, _, 84, _, 81, 79, 77, _, 74, _, 76, _, _, _, 77, 79, 81, _, 83, _, 81, 79, 81, _, 77, _, 72, _, _, _], bass: [41, 48, 43, 50, 41, 48, 47, 43] },
+    monte: { bpm: 92, lead: [74, _, 77, _, 81, _, 79, 77, 76, _, 74, _, 72, _, 74, _, 74, _, 77, _, 81, 83, 84, _, 83, 81, 79, _, 81, _, _, _], bass: [50, 50, 48, 48, 46, 46, 45, 45] },
+    valle: { bpm: 120, lead: [79, 79, 83, _, 81, 79, 76, _, 74, 76, 79, _, 76, _, _, _, 79, 79, 83, _, 86, 83, 81, _, 79, 76, 74, 76, 79, _, _, _], bass: [43, 50, 48, 55, 43, 50, 50, 55] },
+    ciudad: { bpm: 126, lead: [69, 72, 76, 72, 74, _, 72, 69, 67, 69, 72, _, 71, _, _, _, 69, 72, 76, 79, 77, _, 76, 74, 72, 74, 71, _, 69, _, _, _], bass: [45, 45, 41, 41, 43, 43, 40, 40] },
+    isla: { bpm: 104, lead: [76, _, 80, 83, _, 80, 81, _, 83, _, 80, _, 76, _, _, _, 78, _, 81, 85, _, 83, 81, _, 80, 78, 76, _, 76, _, _, _], bass: [40, 47, 45, 52, 42, 49, 47, 52] },
+    ruinas: { bpm: 84, lead: [74, _, _, 77, 76, _, 74, _, 73, _, _, 74, 70, _, _, _, 74, _, _, 77, 79, _, 81, _, 79, 77, 76, _, 74, _, _, _], bass: [38, 38, 34, 34, 36, 36, 33, 33] },
+    battle: { bpm: 150, lead: [81, 81, 84, 81, 79, 81, 76, _, 81, 81, 84, 86, 88, 86, 84, _, 77, 77, 81, 77, 76, 77, 72, _, 74, 76, 77, 79, 81, _, 76, _], bass: [45, 45, 41, 41, 43, 43, 40, 40], drum: true },
+    boss: { bpm: 138, lead: [76, 77, 76, _, 72, _, 71, 72, 76, 77, 79, _, 77, 76, 77, _, 76, 77, 76, _, 72, _, 71, 69, 71, 72, 71, _, 68, _, 64, _], bass: [40, 40, 41, 41, 40, 40, 38, 38], drum: true }
+  };
+  function note(f, t, d, type, v) { const o = ac.createOscillator(), g = ac.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(v, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + d); o.connect(g); g.connect(out); o.start(t); o.stop(t + d + 0.05); }
+  function hit(t) { const len = 0.05, b = ac.createBuffer(1, ac.sampleRate * len, ac.sampleRate), d = b.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length); const s = ac.createBufferSource(), g = ac.createGain(); g.gain.value = 0.12; s.buffer = b; s.connect(g); g.connect(out); s.start(t); }
+  function tick() {
+    const s = SONGS[cur]; if (!s || !ac) return; const e = 60 / s.bpm / 2;
+    while (nextT < ac.currentTime + 0.2) {
+      const n = s.lead[step % s.lead.length]; if (n !== null) note(mtof(n), nextT, e * 0.9, 'square', 0.16);
+      if (step % 4 === 0) { const bn = s.bass[Math.floor(step / 4) % s.bass.length]; note(mtof(bn), nextT, e * 3.6, 'triangle', 0.32); }
+      if (s.drum && step % 2 === 1) hit(nextT);
+      nextT += e; step++;
+    }
+  }
+  return {
+    play(name) {
+      if (!Q().musicOn || !SONGS[name]) return this.stop();
+      if (cur === name && timer) return;
+      try { if (!ac) { ac = new (window.AudioContext || window.webkitAudioContext)(); out = ac.createGain(); out.gain.value = 0.18; out.connect(ac.destination); } if (ac.state === 'suspended') ac.resume(); } catch (e) { return; }
+      this.stop(); cur = name; step = 0; nextT = ac.currentTime + 0.05; timer = setInterval(tick, 60); tick();
+    },
+    stop() { clearInterval(timer); timer = null; cur = null; },
+    playing: () => cur
+  };
+})();
+const townSong = () => town().id;
+function musicToggle() { const q = Q(); q.musicOn = !q.musicOn; save(); if (q.musicOn) MUSIC.play(mode === 'battle' ? (bt && bt.boss ? 'boss' : 'battle') : townSong()); else MUSIC.stop(); paintMusicBtn(); }
+function paintMusicBtn() { root.querySelectorAll('[data-qmusic]').forEach(b => { b.textContent = Q().musicOn ? '♪ Música: sí' : '♪ Música: no'; b.setAttribute('aria-pressed', Q().musicOn ? 'true' : 'false'); }); }
+document.addEventListener('visibilitychange', () => { if (document.hidden) MUSIC.stop(); else if (root && root.isConnected && view === 'quest' && titleDone) MUSIC.play(mode === 'battle' && bt ? (bt.boss ? 'boss' : 'battle') : townSong()); });
+
+// ---------- people who walk around ----------
+let wanderT = 0;
+function wander(t) {
+  if (mode !== 'walk' || t - wanderT < 1400) return; wanderT = t;
+  const T = town();
+  T.npcs.filter(n => n.talk).forEach(n => {
+    if (n.hx === undefined) { n.hx = n.x; n.hy = n.y; }
+    if (Math.random() < 0.55) return;
+    const [dir, [dx, dy]] = Object.entries(DIRS)[Math.floor(Math.random() * 4)];
+    const nx = n.x + dx, ny = n.y + dy;
+    if (Math.abs(nx - n.hx) > 2 || Math.abs(ny - n.hy) > 2) return;
+    const ch = T.map[ny] && T.map[ny][nx];
+    if (!ch || SOLID.has(ch) || ch === ',' || ch === '<' || ch === '>' || (nx === player.x && ny === player.y) || T.npcs.some(m => m !== n && m.x === nx && m.y === ny) || (T.boss.x === nx && T.boss.y === ny)) return;
+    n.dir = dir; n.x = nx; n.y = ny;
+  });
+}
+const npcPos = n => { if (n.px === undefined) { n.px = n.x * TS; n.py = n.y * TS; } const tx = n.x * TS, ty = n.y * TS; n.px += Math.sign(tx - n.px) * Math.min(1.2, Math.abs(tx - n.px)); n.py += Math.sign(ty - n.py) * Math.min(1.2, Math.abs(ty - n.py)); return [Math.round(n.px), Math.round(n.py)]; };
+
+// ---------- transitions ----------
+let wipe = null;
+function drawWipe(t) {
+  if (!wipe) return; const p = Math.min(1, (t - wipe.t0) / 520); const W = VW * TS, H = VH * TS, rows = 11;
+  cx.setTransform(1, 0, 0, 1, 0, 0); cx.fillStyle = '#0c0f1e';
+  for (let r = 0; r < rows; r++) { const w = Math.round(W * Math.min(1, p * 1.4 - r * 0.03)); if (w > 0) cx.fillRect(r % 2 ? W - w : 0, r * (H / rows), w, H / rows + 1); }
+  if (p >= 1) { const done = wipe.done; wipe = null; done(); }
+}
+function fadeIn() { const g = qs('#q-world'); if (!g || reducedMotion) return; g.classList.remove('q-fadein'); void g.offsetWidth; g.classList.add('q-fadein'); }
+
+// ---------- title screen ----------
+let titleDone = false;
+function showTitle() {
+  const T = town(), c = Object.keys(caught()).length, box = qs('#q-title');
+  box.innerHTML = `<div class="q-titlebox"><p class="q-logo">Sendero<br>Quest</p><p class="q-sub">Capítulo ${T.ch} · ${esc(T.name)} · Nv ${level()}${Q().name ? ' · ' + esc(Q().name) : ''}</p>
+    <p class="q-sub">${c} Olvidos in the Diccionario · ${olvidos()} waiting in the tall grass</p>
+    <button class="q-nx primary" id="qt-go">${flag('intro') ? 'Continuar ▸' : 'Empezar ▸'}</button><button class="q-nx" data-qmusic="1"></button></div>`;
+  box.hidden = false; paintMusicBtn(); mode = 'title';
+  const g = qs('#qt-go'); if (g) g.focus({ preventScroll: true });
+}
+function startFromTitle() {
+  qs('#q-title').hidden = true; titleDone = true; mode = 'walk'; MUSIC.play(townSong()); hud();
+  if (!flag('intro')) { setFlag('visit_' + TOWNS[0].id); setFlag('arrived_' + TOWNS[0].id); runDialog(TOWNS[0].arrive.concat(alreadyNote()).map(l => ({ who: TOWNS[0].name, en: l.en })).concat([{ fn: () => setFlag('intro') }])); }
+}
+
 const busy = () => mode !== 'walk';
-return { mount, busy, TOWNS, mentorOf, unitStarted, debug: () => ({ mode, player, q: Q(), bt, startBattle, travel, interact, talk, setMode: m => { mode = m; } }) };
+return { mount, busy, TOWNS, mentorOf, unitStarted, debug: () => ({ mode, player, q: Q(), bt, TOWNS, startBattle, travel, interact, talk }) };
 })();
 
 window.senderoQuestDebug = QUEST.debug; // used by tools/smoke.js
