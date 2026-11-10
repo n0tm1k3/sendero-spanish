@@ -3,7 +3,7 @@
 <title>Sendero Spanish</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Pixelify+Sans:wght@500;700&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
 /* Layout: one centered column (max 960px) — header, tab bar, view; sessions take over the column as a focused card flow. */
 :root {
@@ -301,6 +301,147 @@ textarea#w-text:focus { border-color: var(--accent); outline: none; }
   .story-text { font-size: 1.18rem; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* Quest tab: a deliberate night-time pixel look in both themes. Classes are q- prefixed so course styles never apply. */
+.qx {
+  --q-night: #0c0f1e; --q-win-a: #1b2a6b; --q-win-b: #101a48; --q-rim: #dfe6ff; --q-rim2: #6f82d6;
+  --q-text: #f2f4ff; --q-dim: #aab3dd; --q-gold: #ffd34d; --q-ok: #6fe39a; --q-bad: #ff7b7b; --q-warn: #ffcf70;
+  --q-pixel: "Pixelify Sans", "Trebuchet MS", system-ui, sans-serif;
+  background: var(--q-night); color: var(--q-text); border-radius: var(--r); padding: 12px; display: flex; flex-direction: column; gap: 10px; color-scheme: dark; font: 16px/1.5 var(--body);
+}
+.qx h2, .qx h3, .qx h4 { font-family: var(--q-pixel); letter-spacing: 0.02em; color: var(--q-text); }
+.qx .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.q-title { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.q-title h2 { font-size: 1.45rem; color: var(--q-gold); text-shadow: 2px 2px 0 #4a2f00; }
+.q-title span { font: 500 0.88rem var(--q-pixel); color: var(--q-dim); }
+#q-stage { position: relative; }
+#q-game { position: relative; width: 100%; aspect-ratio: 15 / 11; border-radius: 8px; overflow: hidden; border: 3px solid var(--q-rim); box-shadow: 0 0 0 3px var(--q-win-b); background: #000; }
+#q-world { width: 100%; height: 100%; display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
+#q-hud { position: absolute; top: 6px; left: 6px; right: 6px; display: flex; justify-content: space-between; gap: 6px; pointer-events: none; }
+.q-hud-l, .q-hud-r { display: flex; align-items: center; gap: 8px; background: rgba(12,15,30,.78); border: 1.5px solid var(--q-rim2); border-radius: 6px; padding: 3px 8px; font: 500 0.82rem var(--q-pixel); }
+.q-hud-r b { color: var(--q-gold); font-family: var(--mono); }
+.q-lv { color: var(--q-gold); }
+.q-xpbar { width: 52px; height: 6px; background: #2a335f; border-radius: 3px; overflow: hidden; display: inline-block; }
+.q-xpbar i { display: block; height: 100%; background: var(--q-gold); }
+.q-hud-t { color: var(--q-dim); max-width: 9ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#q-goal { position: absolute; left: 6px; top: 40px; max-width: calc(100% - 12px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: rgba(12,15,30,.72); border-radius: 6px; padding: 3px 8px; font-size: 0.78rem; color: var(--q-dim); pointer-events: none; }
+#q-goal b { font-family: var(--q-pixel); color: var(--q-gold); margin-right: 4px; }
+#q-toast { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); width: min(92%, 520px); background: rgba(12,15,30,.92); border: 1.5px solid var(--q-gold); border-radius: 8px; padding: 8px 12px; font-size: 0.9rem; text-align: center; }
+.q-win { background: linear-gradient(180deg, var(--q-win-a), var(--q-win-b)); border: 2px solid var(--q-rim); border-radius: 8px; box-shadow: inset 0 0 0 2px var(--q-win-b), inset 0 0 0 3px var(--q-rim2); padding: 14px 16px; color: var(--q-text); }
+#q-dlg { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.qx p { margin: 0; }
+.q-who { font: 700 0.95rem var(--q-pixel); color: var(--q-gold); }
+.q-new { color: var(--q-ok); }
+.q-es { font-size: 1.22rem; line-height: 1.6; }
+.q-en { color: var(--q-dim); font-style: italic; }
+#q-dlg h3 { font-size: 1.15rem; margin: 0; }
+.q-en-d { color: var(--q-dim); font-size: 0.92rem; } .q-en-d summary { cursor: pointer; }
+.q-wd { background: none; border: 0; color: inherit; font: inherit; padding: 0; cursor: pointer; border-radius: 3px; }
+.q-wd.unk { text-decoration: underline dotted var(--q-warn) 2px; text-underline-offset: 5px; }
+.q-wd:hover { background: rgba(255,255,255,.12); }
+.q-teach { display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; }
+.q-tw { font: 700 clamp(1.6rem, 6vw, 2.2rem) var(--q-pixel); color: #fff; }
+.q-tm { font-size: 1.1rem; color: var(--q-dim); }
+.q-tip { background: rgba(0,0,0,.25); border-radius: 6px; padding: 6px 10px; font-size: 0.92rem; }
+.q-tip.warn { border-left: 3px solid var(--q-warn); }
+.q-ex span { color: var(--q-dim); font-size: 0.9rem; display: block; }
+.q-act { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.q-cnt { font: 0.8rem var(--mono); color: var(--q-dim); }
+.q-nx { font: 700 1rem var(--q-pixel); color: var(--q-text); background: rgba(255,255,255,.08); border: 2px solid var(--q-rim2); border-radius: 6px; padding: 7px 14px; cursor: pointer; }
+.q-nx.primary { background: var(--q-gold); color: #2a1c00; border-color: #fff2b8; }
+.q-nx:hover { filter: brightness(1.12); }
+.q-link { background: none; border: 0; color: var(--q-dim); text-decoration: underline; font: inherit; font-size: 0.88rem; cursor: pointer; align-self: flex-start; padding: 0; }
+.q-choices, .q-opts { display: grid; gap: 6px; }
+.q-opts { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+.q-ch, .q-opt { text-align: left; font: 1.02rem var(--body); color: var(--q-text); background: rgba(0,0,0,.25); border: 2px solid var(--q-rim2); border-radius: 6px; padding: 9px 12px; cursor: pointer; display: flex; gap: 8px; align-items: center; }
+.q-ch::before { content: "▸"; color: var(--q-gold); }
+.q-ch.ok, .q-opt.ok { border-color: var(--q-ok); background: rgba(111,227,154,.15); }
+.q-ch.no, .q-opt.no { border-color: var(--q-bad); background: rgba(255,123,123,.15); }
+.q-opt kbd { font: 0.72rem var(--mono); color: var(--q-dim); border: 1px solid var(--q-rim2); border-radius: 4px; padding: 0 5px; }
+.q-opt:disabled { cursor: default; color: var(--q-text); }
+.q-in { display: flex; gap: 8px; }
+.q-in input { flex: 1; min-width: 0; font: 1.15rem var(--body); padding: 9px 12px; border-radius: 6px; border: 2px solid var(--q-rim2); background: #0b1236; color: var(--q-text); }
+.q-in input:focus { outline: none; border-color: var(--q-gold); }
+.q-in input.right { border-color: var(--q-ok); } .q-in input.close { border-color: var(--q-warn); } .q-in input.wrong { border-color: var(--q-bad); text-decoration: line-through; }
+.q-accents { display: flex; flex-wrap: wrap; gap: 5px; }
+.q-acc { min-width: 34px; padding: 4px 6px; border-radius: 5px; border: 1.5px solid var(--q-rim2); background: rgba(0,0,0,.25); color: var(--q-text); font-weight: 700; cursor: pointer; }
+.q-audio { display: inline-flex; gap: 4px; vertical-align: middle; }
+.q-say { width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--q-rim2); background: rgba(0,0,0,.25); color: var(--q-gold); font: 0.75rem var(--mono); cursor: pointer; padding: 0; }
+#q-pad { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; touch-action: none; user-select: none; -webkit-user-select: none; }
+.q-dpad { display: grid; grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(3, 52px); gap: 3px; }
+.q-dpad button, .q-abtn { border: 2px solid var(--q-rim2); background: linear-gradient(180deg, #24316f, #141d4a); color: var(--q-rim); font: 700 1.1rem var(--q-pixel); border-radius: 10px; cursor: pointer; touch-action: none; }
+.q-dpad button:active, .q-abtn:active { background: var(--q-rim2); }
+.q-dpad .u { grid-area: 1 / 2; } .q-dpad .l { grid-area: 2 / 1; } .q-dpad .r { grid-area: 2 / 3; } .q-dpad .d { grid-area: 3 / 2; }
+.q-btns { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.q-abtn.q-a { width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(180deg, #ffd34d, #c99a10); color: #2a1c00; border-color: #fff2b8; font-size: 1.4rem; }
+.q-abtn.q-m { padding: 4px 12px; font-size: 0.85rem; }
+.q-keys { text-align: center; font: 500 0.85rem var(--q-pixel); color: var(--q-dim); display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap; }
+.q-keys kbd { font: 0.78rem var(--mono); border: 1px solid var(--q-rim2); border-radius: 4px; padding: 1px 6px; color: var(--q-text); }
+#q-battle, #q-menu { position: fixed; inset: 0; z-index: 50; overflow-y: auto; background: radial-gradient(ellipse at 50% 30%, #1c2560, var(--q-night) 70%); padding-block: max(12px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-bottom, 0px)); padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px)); }
+#q-menu { background: rgba(8,10,24,.9); }
+.q-bwrap { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+.q-bwrap.hurt { animation: q-hurt .35s; }
+@keyframes q-hurt { 0%,100% { transform: none; } 25% { transform: translateX(-6px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-3px); } }
+.q-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.q-foebar, .q-mebar { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,.35); border: 1.5px solid var(--q-rim2); border-radius: 6px; padding: 5px 9px; min-width: 0; }
+.q-name { font: 700 0.9rem var(--q-pixel); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.q-mebar b { font-size: 0.8rem; color: var(--q-dim); }
+.q-hp { flex: 1; height: 8px; background: #2a1622; border-radius: 4px; overflow: hidden; min-width: 40px; display: block; }
+.q-hp i { display: block; height: 100%; background: linear-gradient(90deg, #ff6b6b, #ffb36b); transition: width .4s; }
+.q-hp.me i { background: linear-gradient(90deg, #4fd38a, #b6f07a); }
+.q-hp.q i { background: var(--q-gold); }
+.q-bstage { position: relative; display: grid; place-items: center; height: clamp(150px, 32vh, 220px); }
+#q-foe { height: 100%; aspect-ratio: 1; image-rendering: pixelated; }
+.q-fx { position: absolute; inset: 0; pointer-events: none; }
+.q-pop { position: absolute; left: 50%; top: 30%; font: 700 1.8rem var(--q-pixel); animation: q-pop 1s forwards; text-shadow: 2px 2px 0 #000; }
+.q-pop.foe { color: var(--q-gold); } .q-pop.me { color: var(--q-bad); left: 80%; top: 60%; }
+@keyframes q-pop { from { transform: translate(-50%, 0); opacity: 1; } to { transform: translate(-50%, -40px); opacity: 0; } }
+.q-bpanel { display: flex; flex-direction: column; gap: 10px; }
+.q-msg { font: 700 1.4rem var(--q-pixel); color: var(--q-gold); }
+.q-sub { color: var(--q-dim); }
+.q-lab { font: 500 0.85rem var(--q-pixel); color: var(--q-dim); text-transform: uppercase; letter-spacing: .06em; }
+.q-big { font: 700 clamp(1.5rem, 5.5vw, 2rem) var(--q-pixel); line-height: 1.3; }
+.q-q { font-size: 1.15rem; font-weight: 700; }
+.q-gap { display: inline-block; min-width: 3em; text-align: center; border-bottom: 3px solid var(--q-gold); color: var(--q-gold); padding: 0 4px; font: 500 0.75em var(--body); }
+.q-fb { display: flex; flex-direction: column; gap: 8px; border-top: 1.5px solid var(--q-rim2); padding-top: 10px; }
+.q-verdict { font: 700 1.25rem var(--q-pixel); }
+.q-fb.right .q-verdict { color: var(--q-ok); } .q-fb.close .q-verdict { color: var(--q-warn); } .q-fb.wrong .q-verdict { color: var(--q-bad); }
+.q-dmg { font: 500 0.85rem var(--mono); color: var(--q-gold); }
+.q-xp { font: 500 0.8rem var(--mono); color: #2a1c00; background: var(--q-gold); border-radius: 99px; padding: 1px 8px; }
+.q-sum { display: flex; gap: 14px; flex-wrap: wrap; color: var(--q-dim); }
+.q-sum b { color: var(--q-text); font-size: 1.2rem; }
+.q-menuwin { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+.q-mhead { display: flex; justify-content: space-between; align-items: center; }
+.q-mhead h3 { color: var(--q-gold); margin: 0; font-size: 1.3rem; }
+.q-mtabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.q-mtabs button { font: 700 0.9rem var(--q-pixel); background: none; border: 1.5px solid transparent; color: var(--q-dim); border-radius: 5px; padding: 5px 10px; cursor: pointer; }
+.q-mtabs button.on { border-color: var(--q-gold); color: var(--q-gold); }
+.q-mbody { display: flex; flex-direction: column; gap: 10px; }
+.q-mbody h4 { margin: 4px 0 0; }
+.q-qlist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.q-qlist li { overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) 90px 44px; gap: 10px; align-items: center; background: rgba(0,0,0,.25); border-radius: 6px; padding: 8px 10px; }
+.q-qlist.q-map li { grid-template-columns: minmax(0, 1fr) auto; }
+.q-qlist li.off { opacity: .45; }
+.q-qlist li div { display: flex; flex-direction: column; min-width: 0; }
+.q-qlist li span { font-size: 0.85rem; color: var(--q-dim); }
+.q-qlist .num { text-align: right; }
+.q-here { font: 700 0.85rem var(--q-pixel); color: var(--q-gold) !important; }
+.q-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.q-stats p { background: rgba(0,0,0,.25); border-radius: 6px; padding: 8px 10px; display: flex; flex-direction: column; }
+.q-stats b { font-size: 1.3rem; } .q-stats span { font-size: 0.82rem; color: var(--q-dim); }
+.q-meter { position: relative; height: 46px; }
+.q-meter::before { content: ""; position: absolute; left: 0; right: 0; top: 10px; height: 10px; border-radius: 5px; background: rgba(0,0,0,.35); }
+.q-meter .zone { position: absolute; top: 10px; height: 10px; left: 60%; width: 20%; background: var(--q-ok); opacity: .5; }
+.q-meter .pin { position: absolute; top: 3px; width: 4px; height: 24px; margin-left: -2px; background: var(--q-gold); }
+.q-meter .ticks { position: absolute; left: 0; right: 0; top: 26px; display: flex; justify-content: space-between; font: 0.72rem var(--mono); color: var(--q-dim); }
+.q-how { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; }
+.qx :focus-visible { outline: 3px solid var(--q-gold); outline-offset: 2px; }
+.unit-quest { font-size: 0.82rem; color: var(--muted); }
+@media (max-width: 639px) { #q-goal { font-size: 0.72rem; } .q-hud-l, .q-hud-r { font-size: 0.74rem; } }
+@media (min-width: 640px) { #q-dlg { position: absolute; left: 10px; right: 10px; bottom: 10px; max-height: calc(100% - 64px); overflow-y: auto; z-index: 5; margin: 0; } }
+@media (hover: hover) and (pointer: fine) { #q-pad { display: none; } }
+@media (hover: none), (pointer: coarse) { .q-keys { display: none; } }
+@media (prefers-reduced-motion: reduce) { .qx *, .qx *::before { animation: none !important; transition: none !important; } }
 </style>
 <div class="environment" aria-hidden="true">
   <svg viewBox="0 0 1600 520" preserveAspectRatio="xMidYMin slice" xmlns="http://www.w3.org/2000/svg">
@@ -1407,7 +1548,7 @@ const primary = it => CARD[it.id + (it.kind === 'w' ? ':r' : ':x')];
 // ---------- state ----------
 const DEFAULT = () => ({ v: 2, updatedAt: 0, cards: {}, log: [], xp: 0, xpDay: {}, doneDay: {}, newDay: {},
   streak: { count: 0, last: null, shields: 0 }, seenLessons: {}, read: {}, focus: null,
-  mins: {}, mine: [], games: {}, story: null, storyLog: [], writing: [], listenStart: null, sprintBest: 0, shadowDay: {},
+  mins: {}, mine: [], games: {}, quest: null, story: null, storyLog: [], writing: [], listenStart: null, sprintBest: 0, shadowDay: {},
   settings: { retention: 0.9, session: 30, newPerDay: 30, goal: 120, daily: 90 } });
 let S = DEFAULT();
 const LS = 'sendero-v1';
@@ -1571,7 +1712,7 @@ registerMine();
 
 // ---------- views ----------
 let view = 'today', sess = null, openStory = null;
-const TABS = [['today', 'Today'], ['path', 'Path'], ['read', 'Read'], ['play', 'Play'], ['practice', 'Speak & write'], ['garden', 'Garden'], ['method', 'Method']];
+const TABS = [['today', 'Today'], ['path', 'Path'], ['quest', 'Quest'], ['read', 'Read'], ['play', 'Play'], ['practice', 'Speak & write'], ['garden', 'Garden'], ['method', 'Method']];
 function render() {
   const app = $('#app');
   if (sess) { app.innerHTML = renderSession(); afterSession(); return; }
@@ -1586,9 +1727,10 @@ function render() {
     </div>
   </header>
   <nav class="tabs" role="tablist">${TABS.map(([id, l]) => `<button role="tab" aria-selected="${view === id}" data-tab="${id}">${l}</button>`).join('')}</nav>
-  <main id="view">${({ today: vToday, path: vPath, read: vRead, play: vPlay, practice: vPractice, garden: vGarden, method: vMethod })[view]()}</main>
+  <main id="view">${({ today: vToday, path: vPath, quest: () => '<div id="qmount"></div>', read: vRead, play: vPlay, practice: vPractice, garden: vGarden, method: vMethod })[view]()}</main>
   <footer class="foot"><span id="sync"></span></footer>`;
   paintSync();
+  if (view === 'quest') QUEST.mount($('#qmount'));
 }
 function vToday() {
   const t = now(), k = dayKey();
@@ -1620,7 +1762,7 @@ function vToday() {
       const extra = id === 'cards' ? (due + nNew ? ` · ${due} due, ${nNew} new` : ' · nothing due right now') : '';
       return `<li class="block ${met ? 'met' : ''}">
         <div class="b-main"><p class="b-name"><span class="b-icon" aria-hidden="true">${({ cards: '🧠', listen: '🎧', read: '📖', speak: '🗣️', write: '✍️', game: '🧩' })[id]}</span>${name} <span class="tag">${strand}</span></p><p class="small">${desc}${extra}</p><div class="bar"><i style="width:${Math.min(100, d / p * 100)}%"></i></div></div>
-        <div class="b-side"><span class="num small">${Math.round(d)} / ${p} min</span><button class="btn sm ${met ? 'ghost' : ''}" data-block="${id}" ${id === 'cards' && !due && !newCandidates().length ? 'disabled' : ''}>${met ? 'More' : id === 'listen' ? 'Log' : 'Go'}</button></div></li>`; }).join('')}</ol>
+        <div class="b-side"><span class="num small">${Math.round(d)} / ${p} min</span><button class="btn sm ${met ? 'ghost' : ''}" data-block="${id}" ${id === 'cards' && !due && !newCandidates().length ? 'disabled' : ''}>${met ? 'More' : id === 'listen' ? 'Log' : 'Go'}</button>${id === 'cards' ? '<button class="btn sm ghost" data-tab="quest" title="The same reviews, as battles">Quest</button>' : ''}</div></li>`; }).join('')}</ol>
   </section>
 
   ${listenPanel()}
@@ -1702,7 +1844,7 @@ function vPath() {
     return `<li class="unit ${S.focus === u.n ? 'focus' : ''}">
       <div class="u-head"><span class="u-n num">${u.n}</span><div><h3>${esc(u.title)} <span class="u-es">${esc(u.es)}</span></h3>
       <div class="bar two"><i style="width:${started / cs.length * 100}%"></i><i class="strong" style="width:${strong / cs.length * 100}%"></i></div>
-      <p class="small">${started}/${cs.length} cards started · ${strong} long-term</p></div>
+      <p class="small">${started}/${cs.length} cards started · ${strong} long-term</p>${(m => m ? `<p class="unit-quest">In Quest: ${esc(m.name)}, ${esc(QUEST.TOWNS[m.town].name)}</p>` : '')(QUEST.mentorOf(u.n))}</div>
       <button class="btn ${S.focus === u.n ? 'primary' : 'ghost'} sm" data-focus="${u.n}">${S.focus === u.n ? 'Focused' : 'Focus'}</button></div>
       <details><summary>Lesson notes and why this comes now</summary>
         <p class="why">${esc(u.why)}</p>
@@ -1774,6 +1916,7 @@ const REFS = [
   ['High-frequency words, cognates and false friends', 'Vocabulary is drawn from the top of Spanish frequency lists, where a small core covers most running text. Cognates are flagged because they are learned fast. False friends get their own cards, since you already “know” the wrong meaning.', [['Davies, vocabulary range and text coverage', 'https://www.lingref.com/cpp/hls/7/paper1091.pdf'], ['Spanish–English cognates', 'https://academic.oup.com/applij/advance-article/doi/10.1093/applin/amaf041/8172911']]],
   ['Phrases before grammar', 'Unit 1 teaches whole phrases. Beginners who rely on stored phrases early go on to build more varied vocabulary, and the phrases become templates for grammar later.', [['Myles, chunks in L2 learning', 'https://lagb-education.org/wp-content/uploads/2013/08/Myles.pdf']]],
   ['Reading unlocks by known words', 'Stories show how many of their words you already know. Comprehension is weak below 95% and comfortable around 98%.', [['Lexical coverage and comprehension (Hu & Nation and later)', 'https://www.cambridge.org/core/product/DFCA6605076705D5762C98F286D16B27']]],
+  ['Quest: the same reviews, as a game', 'The Quest tab turns the course into a small role-playing game. Mentors teach each unit, battles in tall grass are your due reviews, and each town’s boss mixes its grammar with vocabulary. It runs on the same cards and scheduler, so nothing is counted twice. A meta-analysis of 26 studies found digital games improved second-language vocabulary learning, with a large effect against other activities. Most of what makes the Quest work is still spaced retrieval; the story is there to make you come back.', [['Tsai & Tsai 2018, game-based L2 vocabulary meta-analysis', 'https://scholar.lib.ntnu.edu.tw/en/publications/digital-game-based-second-language-vocabulary-learning-and-condit-2/']]],
   ['Game design that rewards retention', 'XP grows with how hard the recall was: a card remembered when its predicted recall was low pays up to three times more. Feedback, progress and adaptive challenge are the game elements with the most consistent evidence; leaderboards and badges are mixed, so there are none. Streaks come with shields so one missed day doesn’t wipe out weeks, and you choose your own goal, because pressure and lack of choice undercut motivation.', [['Gamification in language learning, 25-study review', 'https://ojs3.unpatti.ac.id/index.php/huele/article/view/22688'], ['Gamification and intrinsic motivation, meta-analysis', 'https://link.springer.com/article/10.1007/s11423-023-10337-7']]],
 ];
 function vMethod() {
@@ -1993,6 +2136,7 @@ function frontier() { let f = 0; for (const c of CARDS) if (typeof c.unit === 'n
 function phaseNow() { const h = totalHours(), f = frontier(); return h >= 200 ? PHASES[2] : (h >= 100 || f >= 13) ? PHASES[1] : PHASES[0]; }
 function curKind() {
   if (sess) return 'cards';
+  if (view === 'quest') return 'cards';
   if (view === 'play') return 'game';
   if (view === 'read' && (openStory || openDaily)) return 'read';
   if (view === 'practice') return prac;
@@ -2460,6 +2604,7 @@ function mergeState(a, b) {
   if (b.story && (!a.story || b.story.day > a.story.day)) out.story = b.story;
   if (b.streak && (b.streak.last || '') > ((a.streak || {}).last || '')) out.streak = b.streak;
   out.sprintBest = Math.max(a.sprintBest || 0, b.sprintBest || 0);
+  if (a.quest || b.quest) { const qa = a.quest || {}, qb = b.quest || {}; out.quest = Object.assign({}, qb, qa, { flags: Object.assign({}, qb.flags, qa.flags), pending: [...new Set([...(qa.pending || []), ...(qb.pending || [])])], name: qa.name || qb.name || '' }); }
   out.updatedAt = now();
   return out;
 }
@@ -2506,6 +2651,7 @@ function relDays(t) { const d = Math.floor((now() - t) / DAY); return d <= 0 ? '
 
 // ---------- events ----------
 document.addEventListener('click', e => {
+  if (e.target.closest && e.target.closest('#qroot')) return;
   const b = e.target.closest('button'); if (!b) return;
   if (b.dataset.say) { speak(b.dataset.say, !!b.dataset.slow); return; }
   if (b.dataset.tab) { view = b.dataset.tab; openStory = null; openDaily = false; if (sprint && !sprint.done) { clearInterval(sprint.timer); sprint = null; } render(); return; }
@@ -2593,6 +2739,924 @@ document.addEventListener('keydown', e => {
     const b = document.querySelector(`[data-opt="${+e.key - 1}"]`); if (b) b.click();
   }
 });
+// ===== Sendero Quest: the course as a pixel RPG =====
+// One town per few units, in course order. Mentors teach a unit's new cards; tall grass and bosses test them.
+// Everything runs on the course's own cards (S.cards), so a battle is a review and counts like one.
+const QUEST = (() => {
+const TS = 16, MW = 30, MH = 22, VW = 15, VH = 11;
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ---------- towns ----------
+// Map tiles: . grass  , tall grass (encounters)  = path  o plaza  f flowers  b sand  p boards  h cobbles  g pitch
+// solid: T tree  R roof  H wall  D door  W water  M mirror pond  F fountain  S sign  r rock  c crops  x ruin wall  L lamp  k stall  P palm
+// < > gates to the previous / next town (the east gate opens once the town's boss is beaten).
+function builder() {
+  const m = Array.from({ length: MH }, () => Array(MW).fill('.')); const roof = {};
+  const b = {
+    m, roof,
+    rect(x0, y0, x1, y1, ch) { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) m[y][x] = ch; return b; },
+    at(list, ch) { list.forEach(([x, y]) => { m[y][x] = ch; }); return b; },
+    house(x, y, w, h, door, col) { b.rect(x, y, x + w - 1, y + 1, 'R').rect(x, y + 2, x + w - 1, y + h - 1, 'H'); m[y + h - 1][door] = 'D'; for (let yy = y; yy < y + 2; yy++) for (let xx = x; xx < x + w; xx++) roof[xx + ',' + yy] = col; return b; },
+    border(ch = 'T') { for (let x = 0; x < MW; x++) { m[0][x] = ch; m[MH - 1][x] = ch; } for (let y = 0; y < MH; y++) { m[y][0] = ch; m[y][MW - 1] = ch; } return b; }
+  };
+  return b;
+}
+const L = (skin, hair, shirt, pants, extra = {}) => Object.assign({ skin, hair, shirt, pants }, extra);
+const TOWNS = [
+  { id: 'sanlucas', name: 'San Lucas', ch: 1, units: [0, 1, 2],
+    theme: { grass: ['#5da34b', '#4c8f3e'], tall: ['#3f8a3c', '#2f6e2e', '#6cc45a'], tree: 'oak' },
+    build(b) {
+      b.rect(19, 1, 28, 20, ',').at([[20, 3], [22, 6], [26, 8], [21, 12], [24, 14], [27, 16], [20, 18], [23, 19], [25, 11], [19, 15], [28, 12], [22, 16]], 'T');
+      b.rect(23, 1, 28, 5, '.').rect(25, 1, 28, 2, 'M');
+      b.rect(2, 5, 16, 5, '=').rect(9, 5, 9, 7, '=').rect(13, 9, 28, 9, '=').rect(7, 12, 7, 17, '=').rect(4, 17, 7, 17, '=');
+      b.rect(7, 7, 12, 11, 'o').rect(9, 8, 10, 9, 'F');
+      b.house(2, 1, 5, 4, 4, '#3d5fb8').house(11, 1, 5, 4, 13, '#c9772e').house(2, 13, 5, 4, 4, '#b5452f');
+      b.rect(10, 15, 16, 19, 'W');
+      b.at([[1, 7], [6, 7], [14, 7], [15, 11], [8, 13], [17, 3], [1, 11], [9, 19], [17, 14], [5, 19], [13, 13]], 'f');
+      b.at([[17, 8], [8, 6], [6, 12]], 'S').border(); b.at([[29, 9]], '>');
+    },
+    start: [9, 11], spawn: [9, 10], east: [28, 9],
+    signs: {
+      '17,8': { es: '→ El bosque', en: 'East: the forest, where the Olvidos live. Tall grass means encounters. The road east leads on to Puerto Azul.' },
+      '8,6': { es: 'Bienvenido a San Lucas', en: 'Welcome to San Lucas. North: the school and the café.' },
+      '6,12': { es: '↓ La casa de la abuela', en: 'South: Abuela Rosa’s house, by the lake.' } },
+    doors: { '4,4': 'La escuela', '13,4': 'El café', '4,16': 'La casa de Rosa' },
+    npcs: [
+      { id: 'luz', name: 'Profesora Luz', x: 5, y: 5, unit: 0, voice: 'ef_dora', look: L('#e2b48c', '#2b1d14', '#3d5fb8', '#2a2f45', { long: true }), where: 'in front of the school (north-west)',
+        intro: [{ en: 'Ah, a traveler! I’m Profesora Luz, the teacher here in San Lucas.' }, { en: 'Lately our words have been fading. Creatures called Olvidos (“forgettings”) gather in the tall grass. Every one of them is a word someone stopped practicing.' }, { en: 'Spanish spelling is almost perfectly phonetic, so we start with sounds. Learn the rules from me, then go recall them in the grass. Recalling is what makes them stick.' }] },
+      { id: 'rosa', name: 'Abuela Rosa', x: 5, y: 17, unit: 1, voice: 'ef_dora', rate: 0.9, look: L('#d9a47c', '#d8d8d8', '#9c3d6b', '#5a2c45', { long: true }), where: 'by the lake (south-west)',
+        intro: [{ es: '¡Hola! Buenos días.', en: 'Hello! Good morning.' }, { es: 'Me llamo Rosa. ¿Cómo te llamas?', en: 'My name is Rosa. What’s your name?', ask: 'name' }] },
+      { id: 'luis', name: 'Luis', x: 14, y: 5, unit: 2, voice: 'em_alex', look: L('#c48a5f', '#1a1410', '#2f8a63', '#3a3a3a'), where: 'at the café (north)',
+        intro: [{ es: '¡Hola! Me llamo Luis. ¿Cómo estás?', en: 'Hi! I’m Luis. How are you?', choice: [
+          { t: 'Bien, gracias. ¿Y tú?', ok: true, reply: { es: '¡Muy bien, gracias!', en: 'Very well, thanks!' } },
+          { t: 'Hasta luego.', tip: '“Hasta luego” means “see you later”. He asked how you are.' },
+          { t: 'Me llamo Luis.', tip: 'That would mean your name is Luis! He asked how you are.' }] }] },
+      { id: 'pablo', name: 'Pablo', x: 12, y: 11, voice: 'em_alex', rate: 1.08, look: L('#e8c09a', '#7a4a1e', '#e0b030', '#3b5a9a', { small: true }),
+        talk: () => unitStarted(2) > 0.3
+          ? [{ es: '¡Hola! Me llamo Pablo. Soy estudiante. ¿Eres estudiante?', en: 'Hi! I’m Pablo. I’m a student. Are you a student?', choice: [{ t: 'Sí, soy estudiante.', ok: true, reply: { es: '¡Somos estudiantes!', en: 'We’re students!' } }, { t: 'Sí, eres estudiante.', tip: '“eres” means you are. To talk about yourself, use “soy”.' }] }]
+          : [{ es: '¡Hola! Me llamo Pablo.', en: 'Hi! My name is Pablo.' }, { es: 'Canela es mi perro.', en: 'Canela is my dog. Watch out in the tall grass. The Olvidos make you forget words!' }] },
+      { id: 'canela', name: 'Canela', x: 15, y: 12, dog: true, talk: () => [{ es: '¡Guau! ¡Guau!', en: 'Woof! Woof! Canela wags her tail. She’s a dog: el perro.' }] }
+    ],
+    boss: { id: 'espejo', name: 'El Espejo', x: 25, y: 4, shape: 'mirror', voice: 'em_santa', rate: 0.88, focus: [2], col: ['#5b6180', '#c9dcf2', '#ffffff'],
+      hint: 'Something waits by the mirror pond in the north-east forest.',
+      say: { es: '¿Quién eres? ¿Eres tú… o soy yo?', en: 'Who are you? Are you you… or am I? The mirror wants to tangle up ser and your pronouns. Prove you know who is who.' },
+      win: { who: 'Profesora Luz', es: '¡Muy bien!', en: 'The mirror shatters into light and San Lucas remembers who it is. Chapter 1 complete. The road east through the forest is open: it leads to Puerto Azul, on the coast.' } },
+    foes: [['Eco', 'un Eco', 'wisp', ['#7a5cc7', '#a98cf0', '#e3d8ff']], ['Susurro', 'un Susurro', 'leaf', ['#2f8f6a', '#5fc79b', '#d6f7e8']], ['Sombra', 'una Sombra', 'blob', ['#3b3f5c', '#646b94', '#c9cdf0']]],
+    arrive: [{ en: 'You arrive in San Lucas, a small town where words have started to fade.' }, { en: 'Creatures made of forgotten words, the Olvidos, hide in the tall grass. The townspeople can teach you, and the grass is where you practice.' }, { en: 'Walk with the arrow keys or WASD (or the pad on a phone). Press Space or Enter to talk (A on a phone). Look for the yellow marks: someone has something to teach you.' }] },
+
+  { id: 'puerto', name: 'Puerto Azul', ch: 2, units: [3, 4, 5],
+    theme: { grass: ['#6aae55', '#57974a'], tall: ['#8fae5a', '#6f8f44', '#c9d98a'], tree: 'palm', sand: ['#ead59c', '#d9bf80'] },
+    build(b) {
+      b.rect(1, 15, 28, 16, 'b').rect(1, 17, 28, 20, 'W').rect(9, 17, 9, 19, 'p').rect(9, 19, 13, 19, 'p').rect(24, 17, 24, 20, 'p');
+      b.rect(18, 1, 28, 7, ',').rect(17, 11, 28, 14, ',');
+      b.at([[21, 2], [25, 4], [27, 6], [19, 6], [22, 12], [26, 13], [19, 13]], 'P');
+      b.house(2, 1, 5, 4, 4, '#7a4fb3').house(11, 1, 5, 4, 13, '#d0702e').house(2, 11, 5, 4, 4, '#2f7fae');
+      b.rect(7, 7, 16, 11, 'o').rect(11, 8, 12, 9, 'F').at([[8, 8], [15, 8], [8, 11], [15, 11]], 'k');
+      b.rect(0, 10, 6, 10, '=').rect(4, 5, 4, 6, '=').rect(4, 6, 13, 6, '=').rect(13, 5, 13, 6, '=');
+      b.rect(17, 9, 23, 9, '=').rect(23, 3, 23, 9, '=').rect(23, 3, 28, 3, '=').rect(9, 12, 9, 14, '=').rect(4, 15, 4, 15, 'b');
+      b.at([[1, 7], [6, 8], [16, 6], [3, 9], [14, 13], [7, 13]], 'f').at([[1, 15], [27, 15], [16, 15]], 'P');
+      b.at([[6, 9], [10, 14], [22, 4]], 'S').border(); b.at([[0, 10]], '<').at([[29, 3]], '>');
+    },
+    start: [9, 10], spawn: [10, 10], west: [1, 10], east: [28, 3],
+    signs: {
+      '6,9': { es: 'Bienvenido a Puerto Azul', en: 'Welcome to Puerto Azul. The bookshop and the market are north, the docks south.' },
+      '10,14': { es: '↓ El muelle', en: 'The docks. The long pier runs out to sea in the east.' },
+      '22,4': { es: '→ Monteclaro', en: 'East through the dunes: the road up to Monteclaro, in the mountains.' } },
+    doors: { '4,4': 'La librería', '13,4': 'El mercado', '4,14': 'La casa del capitán' },
+    npcs: [
+      { id: 'tomas', name: 'Don Tomás', x: 5, y: 5, unit: 3, voice: 'em_santa', look: L('#d9a47c', '#8a8a8a', '#7a4fb3', '#3a3a3a'), where: 'at the bookshop (north-west)',
+        intro: [{ es: '¡Hola! Me llamo Tomás. Es mi librería.', en: 'Hi! I’m Tomás. This is my bookshop.' }, { en: 'Every thing in Spanish is masculine or feminine, even a table. I’ll teach you the words, together with the little el and la that come with them.' }] },
+      { id: 'marisol', name: 'Marisol', x: 14, y: 5, unit: 4, voice: 'ef_dora', look: L('#c48a5f', '#2b1d14', '#d0702e', '#5a2c45', { long: true }), where: 'outside the market (north)',
+        intro: [{ es: '¡Buenos días! Yo cocino y compro pan aquí.', en: 'Good morning! I cook and buy bread here.' }, { en: 'Most everyday verbs end in -ar: hablar, comprar, cocinar. Learn one set of endings and you can use all of them.' }] },
+      { id: 'ruben', name: 'Capitán Rubén', x: 13, y: 19, unit: 5, voice: 'em_santa', rate: 0.92, look: L('#e2b48c', '#f0f0f0', '#2f5fa8', '#2a2f45'), where: 'at the end of the docks (south)',
+        intro: [{ es: 'Soy viejo, pero soy simpático.', en: 'I’m old, but I’m friendly.' }, { en: 'Out here every describing word matches what it describes: un libro nuevo, una casa nueva. Adjectives agree, and they usually come after the noun.' }] },
+      { id: 'beto', name: 'Beto', x: 20, y: 16, voice: 'em_alex', look: L('#a8714a', '#1a1410', '#e0b030', '#2b3a67'), talk: () => [{ es: '¡Hola! Me llamo Beto. Necesito un café.', en: 'Hi! I’m Beto. I need a coffee.' }] }
+    ],
+    boss: { id: 'mezcla', name: 'La Mezcla', x: 24, y: 20, shape: 'knot', voice: 'em_santa', rate: 0.9, focus: [3, 5], col: ['#2f6f8f', '#e0b860', '#fff4d0'],
+      hint: 'Something tangled waits at the end of the long pier (south-east).',
+      say: { es: '¿El casa? ¿La libro? ¡Todo es una mezcla!', en: 'The casa? The libro? Everything’s a mix-up! A knot of fishing nets is swapping every el and la. Untangle them.' },
+      win: { who: 'Don Tomás', es: '¡Muy bien!', en: 'The nets come loose and the harbor is calm again. Chapter 2 complete. The road east through the dunes is open: it climbs to Monteclaro.' } },
+    foes: [['Ola', 'una Ola', 'wisp', ['#2f6fb8', '#7fb0ea', '#e6f1fb']], ['Bruma', 'una Bruma', 'blob', ['#6b7f99', '#a8b8cc', '#eef3f9']], ['Arena', 'una Arena', 'leaf', ['#b8913a', '#e0c070', '#fff4d0']]],
+    arrive: [{ en: 'The forest opens onto the sea. This is Puerto Azul, a fishing port with a busy market.' }, { en: 'Here the townspeople teach things and their genders, the -ar verbs, and describing words. Dune grass hides more Olvidos.' }] },
+
+  { id: 'monte', name: 'Monteclaro', ch: 3, units: [6, 7, 8],
+    theme: { grass: ['#4f8f5a', '#40784b'], tall: ['#2f6e4a', '#245a3b', '#5aa978'], tree: 'pine' },
+    build(b) {
+      b.rect(14, 1, 15, 20, 'W').rect(14, 10, 15, 10, 'p').rect(14, 17, 15, 17, 'p');
+      b.rect(18, 1, 28, 2, 'r').rect(26, 3, 28, 8, 'r').rect(25, 5, 28, 5, '=');
+      b.rect(16, 7, 28, 20, ',').at([[18, 8], [22, 9], [27, 10], [17, 13], [20, 15], [24, 13], [26, 17], [19, 19], [23, 18], [28, 14], [21, 12]], 'T');
+      b.house(2, 2, 5, 4, 4, '#c94a4a').house(8, 2, 5, 4, 10, '#c9772e').house(2, 14, 5, 4, 4, '#3d5fb8');
+      b.rect(4, 8, 11, 11, 'o').rect(7, 9, 8, 10, 'F');
+      b.rect(0, 10, 3, 10, '=').rect(4, 6, 10, 7, '=').rect(12, 10, 13, 10, '=').rect(6, 12, 6, 18, '=').rect(4, 18, 6, 18, '=');
+      b.rect(16, 10, 21, 10, '=').rect(21, 4, 21, 10, '=').rect(21, 4, 24, 4, '=').rect(24, 4, 24, 5, '=');
+      b.at([[18, 3], [20, 5], [16, 4], [17, 5], [23, 6]], 'r').at([[1, 7], [12, 13], [9, 16], [2, 12], [11, 18]], 'f');
+      b.at([[3, 9], [16, 9], [22, 6]], 'S').border(); b.at([[0, 10]], '<').at([[29, 5]], '>');
+    },
+    start: [5, 10], spawn: [6, 10], west: [1, 10], east: [28, 5],
+    signs: {
+      '3,9': { es: 'Bienvenido a Monteclaro', en: 'Welcome to Monteclaro. The clinic and the restaurant are north of the plaza; the post office is south.' },
+      '16,9': { es: '→ El bosque', en: 'East across the river: the pine forest, full of Olvidos.' },
+      '22,6': { es: '↗ El paso', en: 'North-east: the mountain pass. A thick fog has settled on it.' } },
+    doors: { '4,5': 'La clínica', '10,5': 'El restaurante', '4,17': 'El correo' },
+    npcs: [
+      { id: 'paz', name: 'Doctora Paz', x: 3, y: 6, unit: 6, voice: 'ef_dora', look: L('#e2b48c', '#4a2f1a', '#f0f0f0', '#3d5fb8', { long: true }), where: 'outside the clinic (north-west)',
+        intro: [{ es: '¡Hola! ¿Cómo estás hoy? ¿Estás cansado?', en: 'Hi! How are you today? Are you tired?' }, { en: 'Up here we use estar for how you are and where you are. Ser told you who you are; estar tells you how you’re doing right now.' }] },
+      { id: 'andres', name: 'Andrés', x: 11, y: 6, unit: 7, voice: 'em_alex', look: L('#c48a5f', '#1a1410', '#8a5a2e', '#2b3a67'), where: 'outside the restaurant (north)',
+        intro: [{ es: 'Tengo hambre. Voy a un restaurante. ¿Quieres ir?', en: 'I’m hungry. I’m going to a restaurant. Want to come?' }, { en: 'Five verbs do half the work in Spanish: tener, ir, querer, poder and hacer. They’re irregular, so they get extra practice.' }] },
+      { id: 'ernesto', name: 'Don Ernesto', x: 7, y: 17, unit: 8, voice: 'em_santa', rate: 0.9, look: L('#d9a47c', '#d8d8d8', '#5a7a3a', '#3a3a3a'), where: 'by the post office (south)',
+        intro: [{ es: 'Vivo aquí. Leo libros y escribo correos.', en: 'I live here. I read books and write emails.' }, { en: 'Verbs in -er and -ir: comer, beber, vivir, escribir. Their endings are almost the same as each other, and close to the -ar ones you know.' }] },
+      { id: 'ana', name: 'Ana', x: 10, y: 12, voice: 'ef_dora', rate: 1.08, look: L('#e8c09a', '#7a4a1e', '#e66b8a', '#3b5a9a', { small: true, long: true }), talk: () => [{ es: '¡Hola! Estoy contenta. ¡Hoy no hay clase!', en: 'Hi! I’m happy. There’s no class today!' }] }
+    ],
+    boss: { id: 'niebla', name: 'La Niebla', x: 25, y: 5, shape: 'cloud', voice: 'em_santa', rate: 0.86, focus: [6, 2], col: ['#8a93ad', '#c8cfe0', '#f4f6fb'],
+      hint: 'Fog blocks the mountain pass (north-east, across the river).',
+      say: { es: '¿Quién eres? ¿Dónde estás? ¿Cómo estás?', en: 'Who are you? Where are you? How are you? The fog blurs ser and estar together. Ser for who and where from; estar for how and where.' },
+      win: { who: 'Doctora Paz', es: '¡Estás muy bien!', en: 'The fog lifts off the pass. Chapter 3 complete. Beyond the mountains lies the Valle del Sol.' } },
+    foes: [['Escarcha', 'una Escarcha', 'wisp', ['#4f8fc9', '#9fd0f2', '#f0fbff']], ['Viento', 'un Viento', 'leaf', ['#5f9f8a', '#9fd8c2', '#e8fff6']], ['Piedra', 'una Piedra', 'blob', ['#5a5a66', '#8a8a99', '#d0d0db']]],
+    arrive: [{ en: 'The road climbs into pine forest. Monteclaro sits where the river comes down from the peaks.' }, { en: 'Here you’ll learn estar, the five power verbs, and the -er and -ir verbs.' }] },
+
+  { id: 'valle', name: 'Valle del Sol', ch: 4, units: [9, 10, 11],
+    theme: { grass: ['#8fb04a', '#7d9a36'], tall: ['#7d9a36', '#62802a', '#c2d86a'], tree: 'oak', crop: ['#d9b440', '#b8922a'] },
+    build(b) {
+      b.house(2, 1, 5, 4, 4, '#c9772e').house(9, 1, 5, 4, 11, '#9c3d6b').house(16, 1, 5, 4, 18, '#b5452f').house(24, 11, 3, 5, 25, '#6a6f86');
+      b.rect(1, 5, 28, 5, '=').rect(15, 6, 27, 8, 'c');
+      b.rect(5, 7, 12, 10, 'o').rect(8, 8, 9, 9, 'F').rect(8, 6, 8, 6, '=').rect(1, 8, 4, 8, '=');
+      b.rect(13, 10, 23, 10, '=').rect(23, 10, 23, 16, '=').rect(23, 16, 28, 16, '=');
+      b.rect(1, 12, 21, 20, ',').rect(24, 18, 28, 20, ',').at([[3, 13], [8, 15], [14, 13], [19, 17], [5, 19], [11, 18], [17, 20], [26, 19]], 'T');
+      b.at([[22, 2], [27, 2], [1, 10], [14, 8], [21, 13], [27, 12]], 'f').at([[22, 3], [27, 3]], 'T');
+      b.at([[4, 9], [13, 11], [22, 15]], 'S').border(); b.at([[0, 8]], '<').at([[29, 16]], '>');
+    },
+    start: [7, 9], spawn: [7, 9], west: [1, 8], east: [28, 16],
+    signs: {
+      '4,9': { es: 'Bienvenido al Valle del Sol', en: 'Welcome to the Valle del Sol. The bakery, the cinema and the farm are on the main road.' },
+      '13,11': { es: '↓ El prado', en: 'South: the meadow. Tall grass, many Olvidos.' },
+      '22,15': { es: '→ La torre del reloj', en: 'The clock tower. The road east to the city runs past it.' } },
+    doors: { '4,4': 'La panadería', '11,4': 'El cine', '18,4': 'La granja', '25,15': 'La torre del reloj' },
+    npcs: [
+      { id: 'lupe', name: 'Lupe', x: 12, y: 6, unit: 9, voice: 'ef_dora', rate: 1.05, look: L('#c48a5f', '#2b1d14', '#9c3d6b', '#2a2f45', { long: true }), where: 'outside the cinema (north)',
+        intro: [{ es: '¡Me gusta bailar! ¿Te gusta la música?', en: 'I love dancing! Do you like music?', choice: [
+          { t: 'Sí, me gusta la música.', ok: true, reply: { es: '¡A mí también!', en: 'Me too!' } },
+          { t: 'Sí, te gusta la música.', tip: '“te gusta” means you like it. To talk about yourself, use “me gusta”.' },
+          { t: 'Sí, gusta música.', tip: 'Gustar needs a “me”, and the noun keeps its “la”: me gusta la música.' }] },
+          { en: 'Gustar works backwards from English: the thing you like is the subject. Me gusta la música means music is pleasing to me.' }] },
+      { id: 'quintero', name: 'Señor Quintero', x: 21, y: 4, unit: 10, voice: 'em_santa', look: L('#a8714a', '#4a3a2a', '#5a7a3a', '#6b4423'), where: 'by the farm (north-east)',
+        intro: [{ es: 'Uno, dos, tres… ¿Cuántos? ¡No sé!', en: 'One, two, three… How many? I don’t know!' }, { en: 'Question words and numbers. You need them to ask about anything at all: who, what, when, how much.' }] },
+      { id: 'ines', name: 'Doña Inés', x: 7, y: 4, unit: 11, voice: 'ef_dora', rate: 0.94, look: L('#e2b48c', '#8a8a8a', '#f0f0f0', '#c9772e', { long: true }), where: 'by the bakery (north-west)',
+        intro: [{ es: 'Me levanto temprano todos los días.', en: 'I get up early every day.' }, { en: 'Routine verbs carry a little se: levantarse, ducharse, acostarse. Me levanto: I get (myself) up.' }] },
+      { id: 'tito', name: 'Tito', x: 10, y: 11, voice: 'em_alex', rate: 1.1, look: L('#e8c09a', '#1a1410', '#3d5fb8', '#2b3a67', { small: true }), talk: () => [{ es: '¿Qué hora es? ¡Siempre es tarde!', en: 'What time is it? It’s always late!' }] }
+    ],
+    boss: { id: 'reloj', name: 'El Reloj', x: 27, y: 16, shape: 'clock', voice: 'em_santa', rate: 0.9, focus: [11, 9], col: ['#8a6a3a', '#f0e0b0', '#2a1a10'],
+      hint: 'The clock tower’s creature blocks the road east (south-east).',
+      say: { es: '¿Qué hora es? ¡Es tarde! ¡Es muy tarde!', en: 'What time is it? It’s late! It’s very late! The clock scrambles times, routines and gustar.' },
+      win: { who: 'Lupe', es: '¡Me gusta mucho!', en: 'The clock tower chimes on time again. Chapter 4 complete. East lies Ciudad Plata, the big city.' } },
+    foes: [['Polvo', 'un Polvo', 'blob', ['#a8885a', '#d8bc8a', '#fff0d0']], ['Zumbido', 'un Zumbido', 'wisp', ['#b89a20', '#f0d050', '#fff8c0']], ['Sequía', 'una Sequía', 'leaf', ['#9a6a3a', '#c99a5a', '#f0e0c0']]],
+    arrive: [{ en: 'The road comes down into a wide, golden valley of fields and windmills.' }, { en: 'Here you’ll learn gustar, questions and numbers, and your daily routine.' }] },
+
+  { id: 'ciudad', name: 'Ciudad Plata', ch: 5, units: [12, 13, 14],
+    theme: { grass: ['#5da34b', '#4c8f3e'], tall: ['#3f8a3c', '#2f6e2e', '#6cc45a'], tree: 'oak', cobble: ['#a7a9b4', '#8f919c'] },
+    build(b) {
+      b.rect(1, 1, 28, 20, 'h');
+      b.house(2, 1, 6, 4, 4, '#3d5fb8').house(10, 1, 5, 4, 12, '#6a6f86').house(17, 1, 5, 4, 19, '#c94a4a').house(24, 1, 4, 4, 25, '#2f8a63');
+      b.house(2, 13, 6, 4, 5, '#c9772e').house(10, 13, 5, 4, 12, '#9c3d6b');
+      b.rect(9, 7, 14, 10, 'o').rect(11, 8, 12, 9, 'F').at([[8, 6], [15, 6], [8, 11], [15, 11], [3, 9], [21, 7]], 'L');
+      b.rect(17, 9, 28, 20, ',').at([[18, 10], [19, 10], [20, 10], [22, 12], [22, 13], [22, 14], [19, 14], [19, 15], [19, 16], [25, 10], [25, 11], [25, 12], [26, 15], [24, 17], [21, 19], [27, 12]], 'T');
+      b.rect(17, 18, 28, 18, '=').rect(17, 18, 17, 18, '=');
+      b.at([[16, 12], [2, 7]], 'f').at([[8, 9], [16, 9], [3, 12]], 'S').border(); b.at([[0, 10]], '<').at([[29, 18]], '>');
+    },
+    start: [11, 11], spawn: [11, 10], west: [1, 10], east: [28, 18],
+    signs: {
+      '8,9': { es: 'Bienvenido a Ciudad Plata', en: 'Welcome to Ciudad Plata. The station, the bank and the hotel are north; restaurants south.' },
+      '16,9': { es: '→ El parque', en: 'East: the park and its hedge maze. The road to the coast runs through it.' },
+      '3,12': { es: '↓ Restaurantes', en: 'South: Chef Ramón’s restaurant and the market.' } },
+    doors: { '4,4': 'La estación', '12,4': 'El banco', '19,4': 'El hotel', '25,4': 'La tienda', '5,16': 'El restaurante', '12,16': 'El mercado' },
+    npcs: [
+      { id: 'valeria', name: 'Valeria', x: 6, y: 5, unit: 12, voice: 'ef_dora', look: L('#e2b48c', '#4a2f1a', '#3d5fb8', '#2a2f45', { long: true }), where: 'outside the station (north-west)',
+        intro: [{ es: 'Hoy es lunes. Hace sol y hace calor.', en: 'Today is Monday. It’s sunny and hot.' }, { en: 'Days, dates and the weather. Weather mostly uses hacer: hace frío, hace calor, hace sol.' }] },
+      { id: 'mora', name: 'Agente Mora', x: 16, y: 10, unit: 13, voice: 'em_alex', look: L('#c48a5f', '#1a1410', '#2a3a6a', '#1a2040'), where: 'at the crossing by the park (east)',
+        intro: [{ es: '¿El banco? Está a la derecha. El mercado está lejos.', en: 'The bank? It’s on the right. The market is far.' }, { en: 'Getting around: places in town, and the words for directions.' }] },
+      { id: 'ramon', name: 'Chef Ramón', x: 7, y: 17, unit: 14, voice: 'em_santa', look: L('#d9a47c', '#2b1d14', '#f0f0f0', '#3a3a3a'), where: 'outside the restaurant (south-west)',
+        intro: [{ es: '¡Buenas noches! ¿Qué quiere usted?', en: 'Good evening! What would you like?', choice: [
+          { t: 'Quisiera pollo con arroz, por favor.', ok: true, reply: { es: '¡Muy bien! Es muy rico.', en: 'Very good! It’s delicious.' } },
+          { t: 'Para mí, la cuenta.', tip: 'That asks for the bill. He asked what you’d like to eat.' },
+          { t: 'Tengo pollo.', tip: 'That means you have chicken. Ask for it: “Quisiera…”' }] },
+          { en: 'Food and ordering. Quisiera (I would like) is the polite way to ask for something.' }] },
+      { id: 'turista', name: 'Una turista', x: 20, y: 6, voice: 'ef_dora', look: L('#f0c8a0', '#d8b040', '#e66b8a', '#3b5a9a', { long: true }), talk: () => [{ es: 'Perdón, ¿dónde está el hotel?', en: 'Excuse me, where is the hotel?', choice: [{ t: 'Está aquí, a la izquierda.', ok: true, reply: { es: '¡Gracias!', en: 'Thanks!' } }, { t: 'Es el hotel.', tip: 'She asked where it is. Places take estar: “Está…”' }] }] }
+    ],
+    boss: { id: 'laberinto', name: 'El Laberinto', x: 27, y: 18, shape: 'maze', voice: 'em_santa', rate: 0.9, focus: [13, 14], col: ['#2f6e2e', '#6cc45a', '#d6f7c8'],
+      hint: 'The hedge maze in the park blocks the road east (south-east).',
+      say: { es: '¿A la derecha? ¿A la izquierda? ¡Estás lejos!', en: 'Right? Left? You’re far away! The maze twists directions, food and days.' },
+      win: { who: 'Valeria', es: '¡Hoy hace sol!', en: 'The maze opens up. Chapter 5 complete. From the park, a ferry crosses to Isla Luna.' } },
+    foes: [['Ruido', 'un Ruido', 'blob', ['#6a6f86', '#9aa0b8', '#e0e4f0']], ['Humo', 'un Humo', 'wisp', ['#5a5a66', '#9a9aa8', '#e8e8f0']], ['Prisa', 'una Prisa', 'leaf', ['#c94a4a', '#f08a7a', '#ffe0d8']]],
+    arrive: [{ en: 'Cobbled streets, trains and traffic: Ciudad Plata, the big city.' }, { en: 'Here you’ll learn days and weather, getting around town, and ordering food.' }] },
+
+  { id: 'isla', name: 'Isla Luna', ch: 6, units: [15, 16],
+    theme: { grass: ['#58b06a', '#47985a'], tall: ['#3f9a52', '#2d7a40', '#7ad48a'], tree: 'palm', sand: ['#f0dca4', '#e0c888'] },
+    build(b) {
+      b.rect(1, 1, 28, 20, 'W').rect(3, 2, 26, 19, 'b').rect(5, 4, 24, 17, '.');
+      b.rect(0, 10, 4, 10, 'p').rect(25, 10, 28, 10, 'p');
+      b.house(19, 3, 3, 5, 20, '#f0f0f0').house(6, 4, 5, 4, 8, '#2f8a63');
+      b.rect(6, 11, 13, 16, 'g').rect(12, 5, 16, 8, 'o').rect(13, 6, 14, 7, 'F');
+      b.rect(5, 10, 14, 10, '=').rect(13, 9, 13, 9, '=').rect(17, 8, 20, 8, '=');
+      b.rect(15, 9, 24, 17, ',').at([[16, 11], [19, 10], [22, 12], [17, 15], [21, 16], [24, 14], [20, 13]], 'P');
+      b.at([[4, 3], [25, 4], [3, 17], [25, 18], [15, 19], [4, 6], [24, 2]], 'P').at([[18, 6], [6, 9], [23, 6]], 'f');
+      b.at([[9, 9], [17, 7], [14, 9]], 'S').border(); b.at([[0, 10]], '<').at([[29, 10]], '>');
+    },
+    start: [13, 9], spawn: [13, 9], west: [1, 10], east: [28, 10],
+    signs: {
+      '9,9': { es: 'Bienvenido a Isla Luna', en: 'Welcome to Isla Luna. The football club is west, the lighthouse north-east.' },
+      '17,7': { es: '↗ El faro', en: 'North-east: the lighthouse, where Nana Celia lives.' },
+      '14,9': { es: '→ El puente', en: 'East through the jungle: the old bridge to the ruins.' } },
+    doors: { '20,7': 'El faro', '8,7': 'El club de fútbol' },
+    npcs: [
+      { id: 'julio', name: 'Profe Julio', x: 14, y: 12, unit: 15, voice: 'em_alex', look: L('#a8714a', '#1a1410', '#e0b030', '#2f5fa8'), where: 'by the football pitch (west)',
+        intro: [{ es: '¿Juegas al fútbol? Yo juego todos los días.', en: 'Do you play football? I play every day.' }, { en: 'Some verbs change inside: jugar becomes juego, pensar becomes pienso, dormir becomes duermo. The endings stay the same as always.' }] },
+      { id: 'celia', name: 'Nana Celia', x: 21, y: 8, unit: 16, voice: 'ef_dora', rate: 0.9, look: L('#d9a47c', '#f0f0f0', '#2f5fa8', '#3a3a3a', { long: true }), where: 'by the lighthouse (north-east)',
+        intro: [{ es: 'Mi libro… ¿lo ves? ¡Ah, sí! Aquí está.', en: 'My book… do you see it? Ah, yes! Here it is.' }, { en: 'Object pronouns stand in for something you’ve already mentioned: ¿El libro? Lo veo. They go right before the verb.' }] },
+      { id: 'marta', name: 'Marta', x: 8, y: 10, voice: 'ef_dora', rate: 1.1, look: L('#e8c09a', '#2b1d14', '#e66b8a', '#2f5fa8', { small: true, long: true }), talk: () => [{ es: '¡Me gusta el fútbol!', en: 'I love football!' }] }
+    ],
+    boss: { id: 'cambiante', name: 'El Cambiante', x: 25, y: 10, shape: 'shifter', voice: 'em_santa', rate: 0.88, focus: [15, 16], col: ['#7a3fa8', '#c08af0', '#f4e8ff'],
+      hint: 'A shapeshifter guards the old bridge (east, past the jungle).',
+      say: { es: '¿Juego? ¿Jugo? ¿Lo? ¿La? ¡Todo cambia!', en: 'Juego? Jugo? Lo? La? Everything changes! The shapeshifter twists stems and pronouns.' },
+      win: { who: 'Profe Julio', es: '¡Muy bien!', en: 'The shapeshifter settles into one shape. Chapter 6 complete. Across the bridge: the Ruinas del Ayer, where the past is kept.' } },
+    foes: [['Marea', 'una Marea', 'wisp', ['#2f6fb8', '#7fb0ea', '#e6f1fb']], ['Espuma', 'una Espuma', 'blob', ['#8fb8d0', '#d0e8f4', '#ffffff']], ['Coral', 'un Coral', 'leaf', ['#d05a5a', '#f09a8a', '#ffe8e0']]],
+    arrive: [{ en: 'The ferry drops you on a small island with a lighthouse and a football pitch.' }, { en: 'Here you’ll learn the verbs that change their stems, and the little words that stand in for things: lo, la, le.' }] },
+
+  { id: 'ruinas', name: 'Ruinas del Ayer', ch: 7, units: [17, 18, 19],
+    theme: { grass: ['#a59a62', '#8f8550'], tall: ['#8c8248', '#6f6636', '#c8bc78'], tree: 'oak' },
+    build(b) {
+      b.house(3, 2, 4, 3, 5, '#a8885a').house(3, 13, 5, 4, 5, '#8a6a4a').house(17, 1, 10, 5, 21, '#7a7a8a');
+      b.rect(16, 7, 27, 12, 'o').at([[16, 7], [27, 7], [16, 12], [27, 12], [19, 7], [24, 7]], 'x');
+      b.rect(0, 10, 9, 10, '=').rect(9, 8, 12, 11, 'o').rect(10, 9, 11, 10, 'F').rect(13, 10, 15, 10, '=');
+      b.rect(5, 5, 5, 9, '=').rect(5, 11, 5, 12, '=').rect(21, 6, 21, 6, 'o');
+      b.rect(15, 14, 28, 20, ',').rect(1, 18, 12, 20, ',');
+      b.at([[14, 14], [14, 15], [14, 16], [18, 15], [19, 15], [23, 17], [24, 17], [27, 15], [8, 19], [3, 19]], 'x').at([[20, 19], [26, 19], [11, 18], [17, 18]], 'T');
+      b.at([[8, 6], [12, 4], [2, 9], [13, 13], [9, 16]], 'f').at([[8, 9], [13, 9]], 'S').border(); b.at([[0, 10]], '<');
+    },
+    start: [9, 11], spawn: [12, 11], west: [1, 10],
+    signs: {
+      '8,9': { es: 'Las Ruinas del Ayer', en: 'The Ruins of Yesterday. The camp is north, Matías’s house south, the old temple east.' },
+      '13,9': { es: '→ El templo', en: 'East: the temple courtyard. Something enormous stirs there.' } },
+    doors: { '5,4': 'El campamento', '5,16': 'La casa de Matías', '21,5': 'El templo' },
+    npcs: [
+      { id: 'sofia', name: 'Doctora Sofía', x: 7, y: 4, unit: 17, voice: 'ef_dora', look: L('#e2b48c', '#7a4a1e', '#a8885a', '#5a4a3a', { long: true }), where: 'at the camp (north)',
+        intro: [{ es: 'Ayer llegué. Anoche no comí.', en: 'I arrived yesterday. Last night I didn’t eat.' }, { en: 'The preterite tells what happened: finished actions, one after another. Hablé, comí, fui.' }] },
+      { id: 'matias', name: 'Don Matías', x: 8, y: 15, unit: 18, voice: 'em_santa', rate: 0.85, look: L('#c48a5f', '#e0e0e0', '#6a6f86', '#3a3a3a'), where: 'by his house (south)',
+        intro: [{ es: 'De niño, vivía aquí. Era muy bonito.', en: 'As a child, I lived here. It was very beautiful.' }, { en: 'The imperfect paints the background: what was going on, how things were, what used to happen.' }] },
+      { id: 'celeste', name: 'Celeste', x: 14, y: 11, unit: 19, voice: 'ef_dora', look: L('#a8714a', '#1a1410', '#2f8a63', '#2a2f45', { long: true }), where: 'at the courtyard gate (east)',
+        intro: [{ es: 'Hola. El regalo es para ti. ¡Por fin!', en: 'Hi. The gift is for you. At last!' }, { en: 'Por and para both translate as “for”, but they point in different directions. Para looks ahead to a goal; por looks at the cause or the route.' }] }
+    ],
+    boss: { id: 'olvido', name: 'El Gran Olvido', x: 21, y: 9, shape: 'giant', voice: 'em_santa', rate: 0.82, focus: [17, 18, 19], col: ['#2a1a4a', '#5a3a8a', '#d8c8ff'], final: true,
+      hint: 'The Great Forgetting waits in the temple courtyard (east).',
+      say: { es: 'Ayer… era… fui… iba… ¿Para qué? ¿Por qué?', en: 'Yesterday… it was… I went… I was going… What for? Why? The Great Forgetting is made of everything you’ve learned. Beat it with all of it.' },
+      win: { who: 'Celeste', es: '¡Por fin!', en: 'The Great Forgetting breaks apart, and every town remembers. You’ve walked the whole path. The Olvidos still come back as words fade, so cross the tall grass each day.' } },
+    foes: [['Ceniza', 'una Ceniza', 'blob', ['#5a5a5a', '#9a9a9a', '#e0e0e0']], ['Silencio', 'un Silencio', 'wisp', ['#3a3f5c', '#6a6f94', '#c9cdf0']], ['Polilla', 'una Polilla', 'leaf', ['#8a7a5a', '#c8b88a', '#f0e8d0']]],
+    arrive: [{ en: 'Across the bridge, old stones half-buried in dust: the Ruinas del Ayer.' }, { en: 'Here you’ll learn to talk about the past, both tenses of it, and the difference between por and para.' }] }
+];
+TOWNS.forEach((t, i) => { t.i = i; const b = builder(); t.build(b); t.map = b.m; t.roof = b.roof; t.npcs.forEach(n => { n.town = i; }); });
+const MENTORS = TOWNS.flatMap(t => t.npcs.filter(n => n.unit !== undefined));
+const mentorOf = u => MENTORS.find(n => n.unit === u);
+
+// ---------- state (lives in S.quest, so it syncs and travels in progress files) ----------
+function Q() {
+  if (!S.quest || typeof S.quest !== 'object') S.quest = { town: 0, pos: null, flags: {}, pending: [], name: '' };
+  const q = S.quest; q.flags = q.flags || {}; q.pending = Array.isArray(q.pending) ? q.pending : []; if (!TOWNS[q.town]) q.town = 0;
+  return q;
+}
+const flag = k => !!Q().flags[k];
+const setFlag = k => { Q().flags[k] = 1; };
+const beaten = t => flag('boss_' + TOWNS[t].boss.id);
+const unlocked = t => t === 0 || beaten(t - 1);
+
+// ---------- learning (shared with the course) ----------
+function unitStarted(u) {
+  const cs = CARDS.filter(c => c.unit === u && c.dir !== 'p' && available(c)); if (!cs.length) return 0;
+  const pend = new Set(Q().pending); return cs.filter(c => st(c.cid) || pend.has(c.cid)).length / cs.length;
+}
+const promoCards = () => CARDS.filter(c => c.dir === 'p' && !st(c.cid) && available(c));
+const pendingCards = () => Q().pending.filter(cid => CARD[cid] && !st(cid) && available(CARD[cid]));
+function batchSize() {
+  const acc = recentAcc(); const n = acc === null ? 5 : acc > 0.92 ? 7 : acc >= 0.85 ? 5 : acc >= 0.78 ? 3 : 1;
+  return Math.max(0, Math.min(n, S.settings.newPerDay - (S.newDay[dayKey()] || 0) - pendingCards().length));
+}
+const newInUnit = u => { const pend = new Set(Q().pending); return CARDS.filter(c => c.unit === u && c.dir !== 'p' && !st(c.cid) && !pend.has(c.cid) && available(c)).sort((a, b) => a.order - b.order); };
+const olvidos = () => dueCards().length + pendingCards().length + promoCards().length;
+function memoryPct() { const t = now(); const xs = Object.values(S.cards); if (!xs.length) return null; return xs.reduce((a, x) => a + FSRS.Rnow(x, t), 0) / xs.length; }
+const level = () => Math.floor(Math.sqrt(S.xp / 40)) + 1;
+const lvlFloor = l => 40 * (l - 1) * (l - 1);
+const prevReady = u => u === 0 || unitStarted(u - 1) >= 0.6;
+const bossReady = t => unitStarted(TOWNS[t].units[TOWNS[t].units.length - 1]) >= 0.7;
+
+// ---------- speech ----------
+const CAST = {}; TOWNS.forEach(t => { t.npcs.forEach(n => { CAST[n.name] = n; }); CAST[t.boss.name] = t.boss; });
+function say(text, slow, who) { const c = who && CAST[who]; VOICE.play(text, c && c.voice ? { slow, voice: c.voice, rate: c.rate } : { slow, vary: true }); }
+const qaudio = (t, who) => VOICE.can(t) ? `<span class="q-audio"><button class="q-say" data-qsay="${esc(t)}" ${who ? `data-qwho="${esc(who)}"` : ''} aria-label="Play audio">▶</button><button class="q-say" data-qsay="${esc(t)}" ${who ? `data-qwho="${esc(who)}"` : ''} data-qslow="1" aria-label="Play slowly">½</button></span>` : '';
+
+// ---------- DOM (built once, moved into the Quest tab each time it renders) ----------
+let root = null; const qs = s => root.querySelector(s);
+function build() {
+  root = document.createElement('section'); root.id = 'qroot'; root.className = 'qx';
+  root.innerHTML = `<div class="q-title"><h2>Sendero Quest</h2><span id="q-ch"></span></div>
+  <div id="q-stage"><div id="q-game"><canvas id="q-world" width="${VW * TS}" height="${VH * TS}" aria-label="Map of the current town"></canvas><div id="q-hud"></div><div id="q-goal"></div><div id="q-toast" role="status" hidden></div></div>
+  <div id="q-dlg" class="q-win" role="dialog" aria-live="polite" hidden></div></div>
+  <p class="q-keys"><kbd>←↑↓→</kbd> or <kbd>WASD</kbd> walk · <kbd>Space</kbd> talk · <kbd>M</kbd> menu · <button class="q-abtn q-m" data-qmenu="1">Menú</button></p>
+  <div id="q-pad"><div class="q-dpad"><button class="u" data-qpad="up" aria-label="Up">▲</button><button class="l" data-qpad="left" aria-label="Left">◀</button><button class="r" data-qpad="right" aria-label="Right">▶</button><button class="d" data-qpad="down" aria-label="Down">▼</button></div><span></span>
+  <div class="q-btns"><button class="q-abtn q-a" data-qa="1" aria-label="Talk or continue">A</button><button class="q-abtn q-m" data-qmenu="1">Menú</button></div></div>
+  <div id="q-battle" hidden></div><div id="q-menu" hidden></div>`;
+  cv = qs('#q-world'); cx = cv.getContext('2d'); cx.imageSmoothingEnabled = false;
+  root.querySelectorAll('[data-qpad]').forEach(btn => {
+    const d = btn.dataset.qpad;
+    btn.addEventListener('pointerdown', e => { e.preventDefault(); held = d; tryMove(d); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => btn.addEventListener(ev, () => { if (held === d) held = null; }));
+  });
+  root.addEventListener('click', onClick); root.addEventListener('submit', onSubmit); root.addEventListener('input', onInput);
+}
+
+// ---------- drawing ----------
+let cv, cx, bg = null, bgTown = -1;
+const hash = (x, y, k) => { let h = x * 374761393 + y * 668265263 + k * 2147483647; h = (h ^ (h >>> 13)) * 1274126177; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; };
+const px = (g, x, y, w, h, c) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
+const town = () => TOWNS[Q().town];
+function grass(g, X, Y, tx, ty, th, tall) {
+  const [base, speck, blade] = tall ? th.tall : th.grass;
+  px(g, X, Y, 16, 16, base);
+  for (let i = 0; i < 6; i++) px(g, X + Math.floor(hash(tx, ty, i) * 15), Y + Math.floor(hash(tx, ty, i + 9) * 15), 1, 1, speck);
+  if (tall) for (let i = 0; i < 4; i++) { const a = Math.floor(hash(tx, ty, i + 20) * 13) + 1, c = Math.floor(hash(tx, ty, i + 30) * 8) + 6; px(g, X + a, Y + c, 1, 4, blade); px(g, X + a + 1, Y + c - 1, 1, 3, speck); }
+}
+function ground(g, X, Y, tx, ty, base, speck) { px(g, X, Y, 16, 16, base); for (let i = 0; i < 5; i++) px(g, X + Math.floor(hash(tx, ty, i) * 14), Y + Math.floor(hash(tx, ty, i + 5) * 14), 2, 1, speck); }
+function drawTile(g, T, tx, ty) {
+  const m = T.map, th = T.theme, t = m[ty][tx], X = tx * TS, Y = ty * TS;
+  const under = { b: 1, p: 1, P: 1 }[t] && th.sand ? 'sand' : t === 'h' || t === 'L' ? 'cobble' : 'grass';
+  if (under === 'sand') ground(g, X, Y, tx, ty, th.sand[0], th.sand[1]);
+  else if (under === 'cobble') { px(g, X, Y, 16, 16, th.cobble[0]); for (let r = 0; r < 4; r++) for (let c = 0; c < 2; c++) px(g, X + ((c * 8 + (r % 2 ? 4 : 0)) % 16), Y + r * 4, 7, 3, th.cobble[1]); }
+  else grass(g, X, Y, tx, ty, th, t === ',');
+  if (t === 'f') [[3, 4, '#f2d24b'], [10, 9, '#e66b8a'], [6, 12, '#ffffff'], [12, 3, '#e66b8a']].forEach(([a, c, col]) => { px(g, X + a, Y + c, 2, 2, col); px(g, X + a, Y + c + 2, 1, 2, th.grass[1]); });
+  if (t === '=' || t === '<' || t === '>') { ground(g, X, Y, tx, ty, '#c9a66b', '#a8854f'); if (t !== '=') { px(g, X + 1, Y + 2, 3, 12, '#6b4423'); px(g, X + 12, Y + 2, 3, 12, '#6b4423'); px(g, X + 1, Y + 2, 14, 2, '#8f5a30'); } }
+  if (t === 'o') { px(g, X, Y, 16, 16, '#bdb4a2'); for (let r = 0; r < 4; r++) for (let c = 0; c < 2; c++) px(g, X + ((c * 8 + (r % 2 ? 4 : 0)) % 16), Y + r * 4, 7, 3, '#cfc7b6'); }
+  if (t === 'p') { if (!th.sand) px(g, X, Y, 16, 16, '#3a78c9'); px(g, X, Y + 1, 16, 14, '#9a6b3c'); for (let r = 0; r < 4; r++) px(g, X, Y + 1 + r * 4, 16, 1, '#7a4f2a'); }
+  if (t === 'g') { px(g, X, Y, 16, 16, (tx + ty) % 2 ? '#4fa85a' : '#5ab866'); const mm = T.map; if (mm[ty][tx - 1] !== 'g' || mm[ty][tx + 1] !== 'g') px(g, mm[ty][tx - 1] !== 'g' ? X : X + 15, Y, 1, 16, '#f0f0f0'); if (mm[ty - 1][tx] !== 'g' || mm[ty + 1][tx] !== 'g') px(g, X, mm[ty - 1][tx] !== 'g' ? Y : Y + 15, 16, 1, '#f0f0f0'); }
+  if (t === 'W' || t === 'M') px(g, X, Y, 16, 16, t === 'M' ? '#a9c8e8' : '#3a78c9');
+  if (t === 'c') { px(g, X, Y, 16, 16, th.crop[1]); for (let i = 0; i < 4; i++) { px(g, X + i * 4 + 1, Y + 2, 2, 12, th.crop[0]); px(g, X + i * 4 + 1, Y + 1, 2, 3, '#f0d878'); } }
+  if (t === 'T') {
+    if (th.tree === 'pine') { px(g, X + 7, Y + 12, 2, 3, '#5a3a20'); for (let i = 0; i < 5; i++) px(g, X + 8 - i - 1, Y + 1 + i * 2, (i + 1) * 2, 3, i % 2 ? '#1f5a3a' : '#28704a'); }
+    else if (th.tree === 'palm') drawPalm(g, X, Y);
+    else { px(g, X + 7, Y + 10, 3, 5, '#6b4423'); px(g, X + 2, Y + 2, 12, 9, '#24622f'); px(g, X + 3, Y + 1, 10, 11, '#2c7438'); px(g, X + 4, Y + 3, 4, 3, '#3d9148'); px(g, X + 1, Y + 4, 14, 5, '#2c7438'); }
+  }
+  if (t === 'P') drawPalm(g, X, Y);
+  if (t === 'r') { px(g, X + 1, Y + 4, 14, 11, '#7a7a86'); px(g, X + 3, Y + 2, 9, 4, '#8f8f9c'); px(g, X + 4, Y + 3, 4, 2, '#b0b0bc'); px(g, X + 1, Y + 13, 14, 2, '#5a5a66'); }
+  if (t === 'x') { px(g, X + 1, Y + 2, 14, 13, '#b8a888'); for (let r = 0; r < 3; r++) px(g, X + 1, Y + 6 + r * 4, 14, 1, '#8f8060'); px(g, X + 7, Y + 2, 1, 4, '#8f8060'); px(g, X + 2, Y + 1, 5, 2, '#a89878'); }
+  if (t === 'L') { px(g, X + 7, Y + 4, 2, 11, '#2a2f45'); px(g, X + 5, Y + 1, 6, 4, '#2a2f45'); px(g, X + 6, Y + 2, 4, 2, '#ffe9a0'); px(g, X + 5, Y + 14, 6, 2, '#2a2f45'); }
+  if (t === 'k') { px(g, X + 1, Y + 7, 14, 8, '#9a6b3c'); for (let i = 0; i < 4; i++) px(g, X + i * 4, Y + 2, 4, 5, i % 2 ? '#f0f0f0' : '#d2463a'); px(g, X + 3, Y + 8, 3, 2, '#e0b030'); px(g, X + 9, Y + 9, 3, 2, '#6cc45a'); }
+  if (t === 'R') { const col = T.roof[tx + ',' + ty] || '#b5452f'; px(g, X, Y, 16, 16, col); for (let r = 0; r < 4; r++) px(g, X, Y + r * 4 + 3, 16, 1, 'rgba(0,0,0,.22)'); if (m[ty - 1] && m[ty - 1][tx] !== 'R') px(g, X, Y, 16, 2, 'rgba(255,255,255,.2)'); }
+  if (t === 'H' || t === 'D') { px(g, X, Y, 16, 16, '#ecdfc2'); px(g, X, Y + 14, 16, 2, '#cbbd9d'); if (t === 'H' && tx % 2 === 0 && m[ty + 1] && m[ty + 1][tx] === 'H') { px(g, X + 4, Y + 4, 8, 7, '#5b7fa8'); px(g, X + 7, Y + 4, 1, 7, '#ecdfc2'); px(g, X + 4, Y + 7, 8, 1, '#ecdfc2'); } }
+  if (t === 'D') { px(g, X + 4, Y + 3, 8, 13, '#7a4a26'); px(g, X + 5, Y + 4, 6, 11, '#8f5a30'); px(g, X + 9, Y + 9, 1, 2, '#e8c46a'); }
+  if (t === 'F') { px(g, X, Y, 16, 16, '#bdb4a2'); const left = m[ty][tx - 1] !== 'F', top = m[ty - 1][tx] !== 'F'; px(g, X + (left ? 2 : 0), Y + (top ? 2 : 0), 14, 14, '#9a917f'); px(g, X + (left ? 4 : 0), Y + (top ? 4 : 0), 12, 12, '#4f8fd6'); if (!left && !top) px(g, X - 2, Y - 2, 4, 4, '#d8e8f8'); }
+  if (t === 'S') { px(g, X + 7, Y + 8, 2, 7, '#6b4423'); px(g, X + 2, Y + 3, 12, 7, '#9b6b3c'); px(g, X + 3, Y + 4, 10, 1, '#b8874f'); px(g, X + 3, Y + 6, 8, 1, '#7a4f2a'); }
+}
+function drawPalm(g, X, Y) { px(g, X + 7, Y + 6, 2, 9, '#8a6a3a'); px(g, X + 6, Y + 13, 4, 2, '#6b4f2a'); px(g, X + 2, Y + 3, 12, 3, '#2f8a3f'); px(g, X + 4, Y + 1, 8, 3, '#3fa84f'); px(g, X + 1, Y + 6, 4, 2, '#2f8a3f'); px(g, X + 11, Y + 6, 4, 2, '#2f8a3f'); px(g, X + 7, Y + 5, 2, 2, '#6b4f2a'); }
+function paintBg() {
+  const T = town(); bg = document.createElement('canvas'); bg.width = MW * TS; bg.height = MH * TS; const g = bg.getContext('2d');
+  for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) drawTile(g, T, x, y);
+  bgTown = Q().town;
+}
+function drawWater(t) {
+  const m = town().map;
+  for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) {
+    const ch = m[y][x]; if (ch !== 'W' && ch !== 'M') continue;
+    const ph = Math.floor(t / 400 + hash(x, y, 1) * 4) % 4;
+    px(cx, x * TS + (ph * 4) % 12 + 1, y * TS + 4 + ph, 4, 1, ch === 'M' ? '#e6f1fb' : '#7fb0ea');
+    px(cx, x * TS + ((ph * 4) + 7) % 12 + 1, y * TS + 11 - ph, 3, 1, ch === 'M' ? '#ffffff' : '#6aa2e2');
+  }
+}
+function drawChar(g, X, Y, L, d, f) {
+  const s = L.small ? 1 : 0; const step = f % 2;
+  px(g, X + 3, Y + 14, 10, 2, 'rgba(0,0,0,.25)');
+  px(g, X + 5, Y + 11, 2, 4 - (step ? 1 : 0), L.pants); px(g, X + 9, Y + 11, 2, 4 - (step ? 0 : 1), L.pants);
+  px(g, X + 4, Y + 6 + s, 8, 6 - s, L.shirt); px(g, X + 3, Y + 7 + s, 1, 4, L.skin); px(g, X + 12, Y + 7 + s, 1, 4, L.skin);
+  px(g, X + 4, Y + s * 2, 8, 7 - s, L.skin); px(g, X + 4, Y + s * 2, 8, 2, L.hair);
+  if (d === 'up') px(g, X + 4, Y + 2 + s * 2, 8, 4, L.hair);
+  else {
+    if (d !== 'right') px(g, X + 4, Y + 2 + s * 2, 1, L.long ? 6 : 2, L.hair);
+    if (d !== 'left') px(g, X + 11, Y + 2 + s * 2, 1, L.long ? 6 : 2, L.hair);
+    const ey = Y + 4 + s * 2;
+    if (d === 'down') { px(g, X + 6, ey, 1, 1, '#1b1b22'); px(g, X + 9, ey, 1, 1, '#1b1b22'); }
+    if (d === 'left') px(g, X + 5, ey, 1, 1, '#1b1b22');
+    if (d === 'right') px(g, X + 10, ey, 1, 1, '#1b1b22');
+  }
+}
+function drawDog(g, X, Y, t) {
+  const w = Math.floor(t / 300) % 2;
+  px(g, X + 2, Y + 14, 12, 2, 'rgba(0,0,0,.25)');
+  px(g, X + 3, Y + 8, 9, 5, '#c98a4b'); px(g, X + 3, Y + 12, 2, 3, '#a86e38'); px(g, X + 10, Y + 12, 2, 3, '#a86e38');
+  px(g, X + 10, Y + 5, 5, 5, '#c98a4b'); px(g, X + 13, Y + 7, 1, 1, '#1b1b22'); px(g, X + 14, Y + 8, 2, 1, '#3a2a20'); px(g, X + 10, Y + 4, 2, 3, '#8f5a30');
+  px(g, X + 1, Y + 7 - w, 2, 2, '#c98a4b');
+}
+// Bosses on the map: a small version of their battle sprite.
+function drawBossMini(g, B, X, Y, t) {
+  const bob = reducedMotion ? 0 : Math.round(Math.sin(t / 500));
+  const [d1, d2, d3] = B.col; px(g, X + 2, Y + 14, 12, 2, 'rgba(0,0,0,.3)');
+  const eyes = (y) => { px(g, X + 6, Y + y + bob, 1, 2, '#1b1030'); px(g, X + 9, Y + y + bob, 1, 2, '#1b1030'); };
+  if (B.shape === 'mirror') { px(g, X + 3, Y + 1 + bob, 10, 13, '#6a6f86'); px(g, X + 4, Y + 2 + bob, 8, 11, d2); px(g, X + 5, Y + 3 + bob, 2, 6, d3); eyes(6); px(g, X + 6, Y + 10 + bob, 4, 1, '#2a1a4a'); }
+  else if (B.shape === 'clock') { px(g, X + 3, Y + 2 + bob, 10, 11, d1); px(g, X + 4, Y + 3 + bob, 8, 9, d2); px(g, X + 7, Y + 4 + bob, 2, 4, d3); px(g, X + 8, Y + 7 + bob, 3, 1, d3); }
+  else if (B.shape === 'maze') { px(g, X + 2, Y + 2 + bob, 12, 12, d1); for (let i = 0; i < 3; i++) px(g, X + 4 + i * 3, Y + 4 + bob, 1, 8, d2); px(g, X + 4, Y + 4 + bob, 8, 1, d2); eyes(7); }
+  else { px(g, X + 2, Y + 3 + bob, 12, 11, d1); px(g, X + 4, Y + 4 + bob, 8, 7, d2); px(g, X + 5, Y + 5 + bob, 2, 2, d3); eyes(7); if (B.shape === 'giant') { px(g, X + 1, Y + 1 + bob, 3, 4, d1); px(g, X + 12, Y + 1 + bob, 3, 4, d1); } }
+}
+
+// ---------- loop ----------
+const player = { x: 0, y: 0, d: 'down', px: 0, py: 0, moving: false };
+let running = false, last = 0, markT = -1e9, marks = [], bossMark = false, camX = 0, camY = 0;
+function placePlayer() {
+  const q = Q(), T = town(); const p = q.pos && q.pos.town === q.town ? q.pos : { x: T.start[0], y: T.start[1], d: 'down' };
+  player.x = p.x; player.y = p.y; player.d = p.d || 'down'; player.px = p.x * TS; player.py = p.y * TS; player.moving = false;
+}
+function frame(t) {
+  if (!root || !root.isConnected) { running = false; return; }
+  const dt = Math.min(50, t - last); last = t;
+  if (bgTown !== Q().town || !bg) paintBg();
+  if (player.moving) {
+    const sp = dt * 0.085, tx = player.x * TS, ty = player.y * TS;
+    player.px += Math.sign(tx - player.px) * Math.min(sp, Math.abs(tx - player.px));
+    player.py += Math.sign(ty - player.py) * Math.min(sp, Math.abs(ty - player.py));
+    if (player.px === tx && player.py === ty) { player.moving = false; arrived(); }
+  }
+  camX = Math.max(0, Math.min(MW * TS - VW * TS, player.px - 7 * TS));
+  camY = Math.max(0, Math.min(MH * TS - VH * TS, player.py - 5 * TS));
+  cx.setTransform(1, 0, 0, 1, 0, 0); cx.drawImage(bg, -Math.round(camX), -Math.round(camY));
+  cx.setTransform(1, 0, 0, 1, -Math.round(camX), -Math.round(camY));
+  if (!reducedMotion) drawWater(t);
+  const T = town(); const ents = [];
+  T.npcs.forEach(n => ents.push({ y: n.y * TS, draw: () => n.dog ? drawDog(cx, n.x * TS, n.y * TS, t) : drawChar(cx, n.x * TS, n.y * TS, n.look, n.dir || 'down', 0) }));
+  if (!beaten(T.i)) ents.push({ y: T.boss.y * TS, draw: () => drawBossMini(cx, T.boss, T.boss.x * TS, T.boss.y * TS, t) });
+  ents.push({ y: player.py, draw: () => drawChar(cx, Math.round(player.px), Math.round(player.py), { skin: '#d8a682', hair: '#33261c', shirt: '#d2463a', pants: '#2b3a67' }, player.d, player.moving ? Math.floor(t / 130) : 0) });
+  ents.sort((a, b) => a.y - b.y).forEach(e => e.draw());
+  if (t - markT > 800) { markT = t; marks = T.npcs.filter(n => n.unit !== undefined && mentorHasNews(n)); bossMark = !beaten(T.i) && bossReady(T.i); }
+  const mark = (x, y, col) => { const by = reducedMotion ? 0 : Math.round(Math.sin(t / 250)); px(cx, x * TS + 7, y * TS - 7 + by, 2, 5, col); px(cx, x * TS + 7, y * TS - 1 + by, 2, 2, col); };
+  marks.forEach(n => mark(n.x, n.y, '#ffd34d')); if (bossMark) mark(T.boss.x, T.boss.y, '#ff6b6b');
+  requestAnimationFrame(frame);
+}
+
+// ---------- movement ----------
+let mode = 'walk'; // walk | dialog | battle | menu
+const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+const SOLID = new Set('TRHDWMFSrcxLkP'.split(''));
+let held = null, stepsSince = 6;
+function blockedAt(x, y) {
+  const T = town(); if (x < 0 || y < 0 || x >= MW || y >= MH) return true;
+  const ch = T.map[y][x]; if (SOLID.has(ch)) return true;
+  if (T.npcs.some(n => n.x === x && n.y === y)) return true;
+  if (!beaten(T.i) && T.boss.x === x && T.boss.y === y) return true;
+  return false;
+}
+function tryMove(d) {
+  if (mode !== 'walk' || player.moving) return;
+  player.d = d; const [dx, dy] = DIRS[d]; const nx = player.x + dx, ny = player.y + dy;
+  if (blockedAt(nx, ny)) return;
+  const ch = town().map[ny][nx];
+  if (ch === '>' && !beaten(Q().town)) { toast(`The road east is closed until ${town().boss.name} is beaten.`); return; }
+  player.x = nx; player.y = ny; player.moving = true;
+}
+function savePos() { Q().pos = { town: Q().town, x: player.x, y: player.y, d: player.d }; }
+function arrived() {
+  const T = town(), ch = T.map[player.y][player.x];
+  if (ch === '>' || ch === '<') return travel(Q().town + (ch === '>' ? 1 : -1), ch === '>' ? 'west' : 'east');
+  savePos(); stepsSince++;
+  if (ch === ',' && stepsSince >= 4 && Math.random() < 0.22) {
+    stepsSince = 0;
+    if (!startBattle(false) && !flag('calmHint')) { setFlag('calmHint'); toast('The grass is quiet. Nothing to practice right now: learn from a mentor, or come back when reviews are due.'); }
+  }
+  if (ch === ',' && !flag('grassHint')) { setFlag('grassHint'); toast('Tall grass: Olvidos (forgettings) hide here. Each one is a card to recall.'); }
+  save();
+  if (held && mode === 'walk') tryMove(held);
+}
+function travel(i, side, silent) {
+  const T = TOWNS[i]; if (!T) return;
+  const q = Q(); q.town = i; const p = (side && T[side]) || T.start;
+  q.pos = { town: i, x: p[0], y: p[1], d: side === 'west' ? 'right' : side === 'east' ? 'left' : 'down' };
+  setFlag('visit_' + T.id); placePlayer(); paintBg(); hud(); save();
+  if (!silent && !flag('arrived_' + T.id)) runDialog(T.arrive.map(l => ({ who: T.name, en: l.en })).concat([{ fn: () => setFlag('arrived_' + T.id) }]));
+}
+function interact() {
+  if (mode === 'dialog') return dlgNext();
+  if (mode !== 'walk' || player.moving) return;
+  const T = town(); const [dx, dy] = DIRS[player.d]; const x = player.x + dx, y = player.y + dy, k = x + ',' + y;
+  const n = T.npcs.find(m => m.x === x && m.y === y);
+  if (n) { n.dir = { up: 'down', down: 'up', left: 'right', right: 'left' }[player.d]; return talk(n); }
+  if (!beaten(T.i) && T.boss.x === x && T.boss.y === y) return bossTalk();
+  const ch = T.map[y] && T.map[y][x];
+  if (ch === 'S' && T.signs[k]) return runDialog([{ who: 'Letrero', es: T.signs[k].es, en: T.signs[k].en }]);
+  if (T.doors[k]) return runDialog([{ who: T.doors[k], en: 'The door is closed. Interiors aren’t built yet.' }]);
+  if (ch === 'F') { const m = memoryPct(); return runDialog([{ who: 'La fuente', en: `The fountain shows your memory. Predicted recall across everything you’ve learned: ${m === null ? 'nothing learned yet' : Math.round(m * 100) + '%'}. ${olvidos()} Olvidos are waiting in the tall grass.` }]); }
+}
+function onKey(e) {
+  if (view !== 'quest' || sess || !root || !root.isConnected) return;
+  const tag = e.target.tagName; if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  if (mode === 'battle') {
+    if (bt && bt.phase === 'show' && e.key === 'Enter' && e.target.id !== 'qb-next') { e.preventDefault(); bNext(); }
+    else if (bt && bt.phase === 'ask' && /^[1-9]$/.test(e.key)) { const b = root.querySelector(`[data-qopt="${+e.key - 1}"]`); if (b) b.click(); }
+    return;
+  }
+  const k = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right' }[e.key];
+  if (k && mode === 'walk') { e.preventDefault(); held = k; tryMove(k); return; }
+  if ((e.key === ' ' || e.key === 'Enter') && (mode === 'walk' || mode === 'dialog')) {
+    if (mode === 'dialog' && (qs('#q-dlg input') || (document.activeElement && document.activeElement.closest && document.activeElement.closest('#q-dlg') && document.activeElement.tagName === 'BUTTON'))) return;
+    e.preventDefault(); interact(); return;
+  }
+  if (e.key === 'Escape' || e.key === 'm') { if (mode === 'walk') openMenu(); else if (mode === 'menu') closeMenu(); }
+}
+document.addEventListener('keydown', onKey);
+document.addEventListener('keyup', e => { const k = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right' }[e.key]; if (k === held) held = null; });
+
+// ---------- HUD ----------
+let toastT = null;
+function toast(msg) { const t = qs('#q-toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 5200); }
+function hud() {
+  if (!root) return; markT = -1e9;
+  const l = level(), lo = lvlFloor(l), hi = lvlFloor(l + 1), m = memoryPct(), T = town();
+  qs('#q-ch').textContent = `Capítulo ${T.ch} · ${T.name}`;
+  qs('#q-hud').innerHTML = `<div class="q-hud-l"><span class="q-lv">Nv ${l}</span><span class="q-xpbar"><i style="width:${(S.xp - lo) / (hi - lo) * 100}%"></i></span><span class="q-hud-t">${Q().name ? esc(Q().name) : 'Viajero'}</span></div>
+  <div class="q-hud-r"><span title="Predicted recall across learned cards">Memoria <b>${m === null ? '—' : Math.round(m * 100) + '%'}</b></span><span title="Cards waiting to be practiced">Olvidos <b>${olvidos()}</b></span></div>`;
+  qs('#q-goal').innerHTML = `<b>Misión</b> ${esc(currentQuest())}`;
+}
+function currentQuest() {
+  const here = Q().town;
+  for (const T of TOWNS) {
+    if (!unlocked(T.i)) return `Beat ${TOWNS[T.i - 1].boss.name} to open the road to ${T.name}.`;
+    if (!flag('visit_' + T.id)) return `Take the road east to ${T.name}.`;
+    const at = T.i === here ? '' : ` in ${T.name}`;
+    for (const u of T.units) {
+      const n = mentorOf(u), need = u === T.units[T.units.length - 1] ? 0.7 : 0.6;
+      if (unitStarted(u) >= need) continue; // learned already, here or in the Cards tab
+      if (!flag('met_' + n.id)) return `Find ${n.name}${at}, ${n.where}.`;
+      return `Learn with ${n.name}${at}, then practice in the tall grass (${Math.round(unitStarted(u) * 100)}%).`;
+    }
+    if (!beaten(T.i)) return T.i === here ? T.boss.hint : `${T.boss.name} still waits in ${T.name}.`;
+  }
+  return 'You’ve walked the whole path. Keep the Olvidos at bay: cross the tall grass each day.';
+}
+
+// ---------- dialogue ----------
+let dlg = null;
+const QG = (() => { const m = {}; UNITS.forEach(u => u.items.forEach(it => (it.forms || []).forEach(f => { if (!m[f]) m[f] = it.en[0]; }))); return m; })();
+const NAMES = ['rosa', 'luis', 'pablo', 'luz', 'canela', 'san', 'lucas', 'tomas', 'marisol', 'ruben', 'beto', 'paz', 'andres', 'ernesto', 'ana', 'lupe', 'quintero', 'ines', 'tito', 'valeria', 'mora', 'ramon', 'julio', 'celia', 'marta', 'sofia', 'matias', 'celeste'];
+function esLine(es, free = []) {
+  const known = knownForms(); free = free.concat(NAMES, Q().name ? [normEs(Q().name)] : []);
+  const toks = normEs(es).split(' ').filter(Boolean);
+  const cov = toks.length ? toks.filter(t => known.has(t) || free.includes(t)).length / toks.length : 1;
+  const html = es.split(/(\s+)/).map(w => { const n = normEs(w); if (!n) return esc(w); const k = known.has(n) || free.includes(n); return `<button class="q-wd ${k ? '' : 'unk'}" data-qg="${esc(QG[n] || '')}" data-qw="${esc(w)}">${esc(w)}</button>`; }).join('');
+  return { html, cov };
+}
+function runDialog(pages, onEnd) { dlg = { pages, i: 0, onEnd }; mode = 'dialog'; held = null; showPage(); }
+function showPage() {
+  const p = dlg.pages[dlg.i]; const box = qs('#q-dlg'); box.hidden = false;
+  if (p.fn) { p.fn(); return dlgNext(); }
+  const nextBtn = (last) => `<div class="q-act"><span class="q-cnt">${p.k ? p.k + '/' + p.of : ''}</span><button class="q-nx" id="q-dlg-next">${last ? 'Cerrar ✕' : 'Siguiente ▸'}</button></div>`;
+  if (p.teach && p.teach.it.kind !== 'w') {
+    const it = p.teach.it; let body = '';
+    if (it.kind === 'mc') body = `<p class="q-lt">${esc(it.listen ? 'Can you hear the difference?' : it.q)}</p>${it.demo ? it.demo.map(w => `<p class="q-es" lang="es"><b>${esc(w)}</b> ${qaudio(w)}</p>`).join('') : `<p class="q-es">→ <b>${esc(it.opts[it.a])}</b> ${it.say ? qaudio(it.say) : ''}</p>`}<p class="q-tip">${esc(it.why)}</p>`;
+    else if (it.kind === 'c') { const full = it.q.replace('___', it.a[0]); body = `<p class="q-es" lang="es">${esc(full)} ${qaudio(full)}</p><p class="q-en">${esc(it.en)}</p><p class="q-tip">${esc(it.hint)} → <b>${esc(it.a[0])}</b>. ${esc(it.why)}</p>`; }
+    else if (it.kind === 'pi') body = `<p class="q-es" lang="es">${esc(it.q)} ${qaudio(it.q)}</p><p class="q-en">${esc(it.en)}</p><p class="q-tip">${it.opts === PERSONS ? `Who? <b>${esc(it.opts[it.a])}</b>. ` : ''}${esc(it.why)}</p>`;
+    else if (it.kind === 'd') body = `<p class="q-es" lang="es"><b>${esc(it.say)}</b> ${qaudio(it.say)}</p><p class="q-en">${esc(it.en)}</p><p class="q-tip">Listen a few times. In the grass you’ll hear it without seeing it, and type what you hear.</p>`;
+    box.innerHTML = `<p class="q-who">${esc(p.who)} · <span class="q-new">Ejemplo</span></p>${body}${nextBtn(false)}`;
+    const t = it.kind === 'd' ? it.say : it.kind === 'pi' ? it.q : it.kind === 'c' ? it.q.replace('___', it.a[0]) : (!it.demo && it.say); if (t) say(t);
+  } else if (p.teach) {
+    const it = p.teach.it;
+    box.innerHTML = `<p class="q-who">${esc(p.who)} · <span class="q-new">Nueva palabra</span></p><div class="q-teach"><span class="q-tw" lang="es">${esc(it.es)}</span>${qaudio(it.es)}<span class="q-tm">${esc(it.en.slice(0, 2).join(' · '))}</span></div>${it.ff ? `<p class="q-tip warn">${esc(it.ff)}</p>` : ''}${it.note ? `<p class="q-tip">${esc(it.note)}</p>` : ''}${it.ex ? `<p class="q-ex" lang="es">${esc(it.ex[0])} <span>${esc(it.ex[1])}</span></p>` : ''}${nextBtn(false)}`;
+    say(it.es);
+  } else if (p.lesson) {
+    box.innerHTML = `<p class="q-who">${esc(p.who)} · <span class="q-new">Lección</span></p><h3>${esc(p.lesson[0])}</h3><p class="q-lt">${esc(p.lesson[1])}</p>${nextBtn(false)}`;
+  } else if (p.ask) {
+    box.innerHTML = `<p class="q-who">${esc(p.who)}</p><p class="q-es" lang="es">${esc(p.es)} ${qaudio(p.es, p.who)}</p><p class="q-en">${esc(p.en)} Answer with “Me llamo …”.</p><form id="q-dlg-form" class="q-in" autocomplete="off"><input id="q-dlg-input" lang="es" placeholder="Me llamo …" autocapitalize="off" spellcheck="false"><button class="q-nx" type="submit">Decir ▸</button></form><p class="q-tip" id="q-dlg-tip" hidden></p>`;
+    setTimeout(() => { const i = qs('#q-dlg-input'); if (i) i.focus(); }, 30); say(p.es, false, p.who);
+  } else if (p.choice) {
+    const line = esLine(p.es || '', p.free);
+    box.innerHTML = `<p class="q-who">${esc(p.who)}</p><p class="q-es" lang="es">${line.html} ${qaudio(p.es, p.who)}</p>${p.en ? `<p class="q-en">${esc(p.en)}</p>` : ''}<div class="q-choices">${p.choice.map((c, i) => `<button class="q-ch" data-qch="${i}" lang="es">${esc(c.t)}</button>`).join('')}</div><p class="q-tip" id="q-dlg-tip" hidden></p>`;
+    say(p.es, false, p.who);
+  } else {
+    let body = '';
+    if (p.es) { const line = esLine(p.es, p.free); body += `<p class="q-es" lang="es">${line.html} ${qaudio(p.es, p.who)}</p>`; if (p.en) body += line.cov >= 0.95 ? `<details class="q-en-d"><summary>English</summary>${esc(p.en)}</details>` : `<p class="q-en">${esc(p.en)}</p>`; say(p.es, false, p.who); }
+    else body += `<p class="q-lt">${esc(p.en)}</p>`;
+    box.innerHTML = `<p class="q-who">${esc(p.who)}</p>${body}${nextBtn(dlg.i === dlg.pages.length - 1)}`;
+  }
+  const nb = qs('#q-dlg-next'); if (nb) nb.focus({ preventScroll: true });
+}
+function dlgNext() {
+  if (!dlg) return;
+  const p = dlg.pages[dlg.i]; if (p && (p.ask || p.choice)) return;
+  dlg.i++;
+  if (dlg.i >= dlg.pages.length) { const end = dlg.onEnd; dlg = null; qs('#q-dlg').hidden = true; mode = 'walk'; hud(); save(); if (end) end(); return; }
+  showPage();
+}
+
+// ---------- mentors ----------
+function mentorHasNews(n) {
+  if (!prevReady(n.unit)) return false;
+  if (!flag('met_' + n.id) || !S.seenLessons[n.unit]) return true;
+  return newInUnit(n.unit).length > 0 && batchSize() > 0 && pendingCards().length < 8 && dueCards().length < 20;
+}
+function talk(n) {
+  if (n.talk) return runDialog(n.talk().map(l => Object.assign({ who: n.name }, l)));
+  const pages = []; const P = o => Object.assign({ who: n.name }, o);
+  if (!prevReady(n.unit)) {
+    const prev = mentorOf(n.unit - 1);
+    return runDialog([P({ es: 'Hola…', en: `Come back after you’ve worked through more with ${prev.name}${prev.town !== n.town ? ' in ' + TOWNS[prev.town].name : ''}. (${Math.round(unitStarted(n.unit - 1) * 100)}% of that unit started; 60% needed.)` })]);
+  }
+  if (!flag('met_' + n.id)) {
+    n.intro.forEach(l => pages.push(P(l.ask ? { es: l.es, en: l.en, ask: true } : l)));
+    pages.push({ fn: () => setFlag('met_' + n.id) });
+  }
+  const u = UNITS[n.unit];
+  if (!S.seenLessons[n.unit]) {
+    pages.push(P({ en: u.why }));
+    u.lesson.forEach((l, i) => pages.push(P({ lesson: l, k: i + 1, of: u.lesson.length })));
+    pages.push({ fn: () => { S.seenLessons[n.unit] = true; } });
+  }
+  const todo = newInUnit(n.unit), due = dueCards().length, pend = pendingCards().length;
+  if (!todo.length) pages.push(P({ es: '¡Muy bien! Ya sabes todo.', en: 'You’ve started everything I can teach. Keep practicing in the tall grass so it stays.' }));
+  else if (pend >= 8 || due >= 20) pages.push(P({ en: `First go practice what you already have: ${pend + due} Olvidos are waiting in the tall grass. Come back after.` }));
+  else {
+    const n0 = batchSize();
+    if (!n0) pages.push(P({ en: 'That’s plenty of new material for today. Practice in the tall grass and come back tomorrow.' }));
+    else {
+      const batch = todo.slice(0, n0);
+      pages.push(P({ en: `I’ll show you ${batch.length} new ${batch.length === 1 ? 'thing' : 'things'}. Don’t try to memorize them here; you’ll recall them in the tall grass in a moment, and that recall is what does the work.` }));
+      batch.forEach((c, i) => pages.push(P({ teach: c, k: i + 1, of: batch.length })));
+      pages.push({ fn: () => { Q().pending.push(...batch.map(c => c.cid)); } });
+      pages.push(P({ es: '¡A la hierba!', en: 'Off to the tall grass!' }));
+    }
+  }
+  runDialog(pages);
+}
+function onSubmitName(v) {
+  const x = normEs(v); const m = x.match(/^me llamo (.+)$/);
+  if (!m) return 'Try saying it in Spanish: “Me llamo” + your name.';
+  Q().name = m[1].replace(/\b\w/g, c => c.toUpperCase());
+  dlg.pages.splice(dlg.i + 1, 0, { who: dlg.pages[dlg.i].who, es: `¡Mucho gusto, ${Q().name}!`, en: `Nice to meet you, ${Q().name}!`, free: [normEs(Q().name)] });
+  return true;
+}
+
+// ---------- battles: each one is a short review session on the course's cards ----------
+let bt = null;
+function battleQueue(boss) {
+  const t = now(), R = c => FSRS.Rnow(st(c.cid), t);
+  if (boss) {
+    const T = town(); const units = new Set(TOWNS.slice(0, T.i + 1).flatMap(x => x.units));
+    const pool = CARDS.filter(c => typeof c.unit === 'number' && units.has(c.unit) && st(c.cid) && available(c)).sort((a, b) => R(a) - R(b));
+    const focus = new Set(T.boss.focus);
+    const gram = pool.filter(c => focus.has(c.unit) && c.it.kind !== 'w');
+    const words = pool.filter(c => !(focus.has(c.unit) && c.it.kind !== 'w')).sort((a, b) => (T.units.includes(b.unit) ? 1 : 0) - (T.units.includes(a.unit) ? 1 : 0) || R(a) - R(b));
+    const n = T.boss.final ? 14 : 10; const pick = [];
+    while (pick.length < n && (gram.length || words.length)) { if (gram.length && (pick.length % 2 === 0 || !words.length)) pick.push(gram.shift()); else pick.push(words.shift()); }
+    return pick.length >= 5 ? pick.map(c => c.cid) : [];
+  }
+  const due = dueCards(t).sort((a, b) => R(a) - R(b)).map(c => c.cid);
+  const newOnes = pendingCards().slice(0, 3).concat(promoCards().slice(0, 1).map(c => c.cid));
+  const revs = due.slice(0, Math.max(2, 6 - newOnes.length)); const q = [];
+  if (revs.length) q.push(revs.shift()); // a new card's first test comes after a review, not straight away
+  while (newOnes.length || revs.length) { if (newOnes.length) q.push(newOnes.shift()); if (revs.length) q.push(revs.shift()); }
+  return q.slice(0, 6);
+}
+function startBattle(boss) {
+  const q = battleQueue(boss); if (!q.length) return false;
+  const T = town(); const f = T.foes[Math.floor(Math.random() * T.foes.length)];
+  const foe = boss ? { name: T.boss.name, es: T.boss.name, shape: T.boss.shape, col: T.boss.col } : { name: f[0], es: f[1], shape: f[2], col: f[3] };
+  const hp = Math.max(40, Math.round(q.length * 20 * 0.8)); // about 80% right wins, near the 85% target
+  bt = { q, i: 0, boss, foe, hp, max: hp, php: 100, xp: 0, tried: {}, retries: {}, phase: 'intro', res: null, mode: null, opts: null, t0: 0, ok: 0, n: 0, shake: 0 };
+  mode = 'battle'; held = null; qs('#q-battle').hidden = false;
+  renderBattle(); requestAnimationFrame(drawFoe);
+  return true;
+}
+function bossTalk() {
+  const T = town(), B = T.boss;
+  if (!bossReady(T.i)) { const u = T.units[T.units.length - 1], n = mentorOf(u); return runDialog([{ who: B.name, es: B.say.es, en: `${B.say.en} (You can’t face it yet: start 70% of ${n.name}’s unit first. Now ${Math.round(unitStarted(u) * 100)}%.)` }]); }
+  runDialog([{ who: B.name, es: B.say.es, en: B.say.en }], () => { if (!startBattle(true)) runDialog([{ who: B.name, en: 'It looks straight through you. Learn and practice a few more words first.' }]); });
+}
+function bMode(c) {
+  const it = c.it, x = st(c.cid);
+  if (it.kind === 'w' && c.dir === 'r') { const acc = recentAcc(); if (!x) return acc !== null && acc > 0.92 ? 'type' : 'mc'; if (x.reps < 2 && x.lastG === 1) return 'mc'; return 'type'; }
+  if (it.kind === 'w' || it.kind === 'c' || it.kind === 'd') return 'typeEs';
+  return 'choice';
+}
+function mcOpts(c) {
+  const src = UNITS[c.unit] ? UNITS[c.unit].items : Object.values(ITEM);
+  const pool = src.filter(i => i.kind === 'w' && i.id !== c.it.id).map(i => i.en[0]);
+  return shuffle([c.it.en[0], ...shuffle([...new Set(pool)]).filter(x => x !== c.it.en[0]).slice(0, 3)]);
+}
+const qopts = (o, correct, pick) => `<div class="q-opts">${o.map((t, i) => `<button class="q-opt ${correct === i ? 'ok' : ''} ${pick === i && pick !== correct ? 'no' : ''}" data-qopt="${i}" ${correct >= 0 ? 'disabled' : ''}><kbd>${i + 1}</kbd>${esc(t)}</button>`).join('')}</div>`;
+function tbox(ph, lang) {
+  const done = bt.phase === 'show';
+  return `<form id="qb-form" class="q-in" autocomplete="off"><input id="qb-in" lang="${lang}" placeholder="${ph}" autocapitalize="off" spellcheck="false" ${done ? `value="${esc(bt.res.input)}" readonly class="${bt.res.grade}"` : ''}>${done ? '' : '<button class="q-nx primary" type="submit">Atacar ▸</button>'}</form>${!done && lang === 'es' ? `<div class="q-accents">${['á', 'é', 'í', 'ó', 'ú', 'ñ', '¿', '¡'].map(a => `<button type="button" class="q-acc" data-qacc="${a}">${a}</button>`).join('')}</div>` : ''}${done ? '' : '<button class="q-link" id="qb-idk">I don’t know</button>'}`;
+}
+function renderBattle() {
+  const B = qs('#q-battle');
+  const bars = `<div class="q-bars"><div class="q-foebar"><span class="q-name">${esc(bt.foe.name)}</span><span class="q-hp"><i style="width:${Math.max(0, bt.hp / bt.max * 100)}%"></i></span></div><div class="q-mebar"><span class="q-name">${Q().name ? esc(Q().name) : 'Tú'}</span><span class="q-hp me"><i style="width:${Math.max(0, bt.php)}%"></i></span><b class="num">${Math.max(0, bt.php)}</b></div></div>`;
+  const stage = `<div class="q-bstage"><canvas id="q-foe" width="64" height="64" aria-hidden="true"></canvas><div id="q-fx" class="q-fx"></div></div>`;
+  let panel = '';
+  if (bt.phase === 'intro') panel = `<p class="q-msg" lang="es">¡Aparece ${esc(bt.foe.es)}!</p><p class="q-sub">${bt.boss ? 'A boss mixes everything from this town and before. Get about 4 in 5 right to win.' : 'Each correct recall is an attack. Harder recalls hit harder.'} ${bt.q.length} ${bt.q.length === 1 ? 'card' : 'cards'}.</p><div class="q-act"><button class="q-nx" id="qb-flee">Huir</button><button class="q-nx primary" id="qb-next">¡A luchar! ▸</button></div>`;
+  else if (bt.phase === 'end') panel = bt.endHtml;
+  else {
+    const c = CARD[bt.q[bt.i]]; const it = c.it; const done = bt.phase === 'show'; const r = bt.res;
+    if (!done) { bt.mode = bMode(c); if (bt.mode === 'mc') bt.opts = mcOpts(c); }
+    let prompt = '', input = '';
+    if (it.kind === 'w' && c.dir === 'r') { prompt = `<p class="q-lab">What does it mean?</p><p class="q-big" lang="es">${esc(it.es)} ${qaudio(it.es)}</p>`; input = bt.mode === 'mc' ? qopts(bt.opts, done ? bt.opts.indexOf(it.en[0]) : -1, r && r.pick) : tbox('English meaning', 'en'); }
+    else if (it.kind === 'w') { prompt = `<p class="q-lab">Say it in Spanish${it.noun ? ' (with el / la)' : ''}</p><p class="q-big">${esc(it.en[0])}</p>`; input = tbox('En español', 'es'); }
+    else if (it.kind === 'c') { const [a, z] = it.q.split('___'); prompt = `<p class="q-lab">Fill the gap · ${esc(it.en)}</p><p class="q-big" lang="es">${esc(a)}<span class="q-gap">${done ? esc(it.a[0]) : '(' + esc(it.hint) + ')'}</span>${esc(z || '')}</p>`; input = tbox('The missing word', 'es'); }
+    else if (it.kind === 'd') { prompt = `<p class="q-lab">Listen and type</p><p class="q-big">${qaudio(it.say)}</p>`; input = tbox('What you hear', 'es'); }
+    else if (it.kind === 'pi') { prompt = `<p class="q-lab">${it.opts === PERSONS ? 'Who? Read the verb ending.' : 'What does it mean?'}</p><p class="q-big" lang="es">${esc(it.q)} ${qaudio(it.q)}</p>`; input = qopts(it.opts, done ? it.a : -1, r && r.pick); }
+    else { prompt = `<p class="q-lab">${it.id.startsWith('s-') ? 'Sounds' : 'Choose'}</p><p class="q-q">${esc(it.q)}</p>${it.say ? qaudio(it.say) : ''}`; input = qopts(it.opts, done ? it.a : -1, r && r.pick); }
+    let fb = '';
+    if (done) {
+      const verdict = { right: '¡Golpe!', close: 'Golpe débil', wrong: '¡Fallaste!' }[r.grade];
+      const ans = it.kind === 'w' ? (c.dir === 'r' ? `<b lang="es">${esc(it.es)}</b> = ${esc(it.en.join(', '))}` : `<b lang="es">${esc(it.es)}</b> ${qaudio(it.es)}`) : it.kind === 'c' ? `<span lang="es">${esc(it.q.replace('___', it.a[0]))}</span> · ${esc(it.why)}` : it.kind === 'd' ? `<b lang="es">${esc(it.say)}</b> = ${esc(it.en)}` : it.kind === 'pi' ? `${esc(it.en)} · ${esc(it.why)}` : esc(it.why);
+      fb = `<div class="q-fb ${r.grade}"><p class="q-verdict">${verdict} ${r.dmg ? `<span class="q-dmg">−${r.dmg} HP</span>` : ''} <span class="q-xp">+${r.xp} XP</span></p>${r.note ? `<p class="q-tip">${esc(r.note)}</p>` : ''}<p>${ans}</p>${it.kind === 'w' && it.ff ? `<p class="q-tip warn">${esc(it.ff)}</p>` : ''}<div class="q-act"><span class="q-cnt">${bt.i + 1}/${bt.q.length}</span><button class="q-nx primary" id="qb-next">Siguiente ▸</button></div></div>`;
+    }
+    panel = prompt + input + fb;
+  }
+  B.innerHTML = `<div class="q-bwrap">${bars}${stage}<div class="q-bpanel q-win">${panel}</div></div>`;
+  const nb = qs('#qb-next'), inp = qs('#qb-in');
+  if (bt.phase === 'ask') {
+    bt.t0 = now(); if (inp) inp.focus({ preventScroll: true });
+    const c = CARD[bt.q[bt.i]];
+    if (c.it.kind === 'd') setTimeout(() => say(c.it.say), 200);
+    else if (c.it.kind === 'pi' || (c.it.kind === 'w' && c.dir === 'r')) setTimeout(() => say(c.it.kind === 'pi' ? c.it.q : c.it.es), 200);
+    else if (c.it.listen) setTimeout(() => say(c.it.say), 200);
+  } else if (nb) nb.focus({ preventScroll: true });
+}
+// Grades exactly like a course session: same checks, same FSRS update, same XP, log and streak.
+function bAnswer(raw, pick) {
+  const cid = bt.q[bt.i], c = CARD[cid], it = c.it, t = now(), m = bt.mode, rt = t - bt.t0;
+  let res;
+  if (m === 'mc') res = { grade: bt.opts[pick] === it.en[0] ? 'right' : 'wrong' };
+  else if (m === 'choice') res = { grade: pick === it.a ? 'right' : 'wrong' };
+  else if (m === 'type') res = checkEnglish(raw, it.en);
+  else if (it.kind === 'w') res = checkSpanish(raw, esAnswers(it), !!it.noun);
+  else if (it.kind === 'c') res = checkSpanish(raw, it.a.map(normEs), false);
+  else res = checkSpanish(raw, [normEs(it.say)], false);
+  const before = st(cid), Rpre = before ? FSRS.Rnow(before, t) : 0;
+  let g = res.grade === 'wrong' ? 1 : res.grade === 'close' ? 2 : 3;
+  const typed = m === 'type' || m === 'typeEs';
+  if (g === 3 && before && before.reps >= 2 && rt < (typed ? 5000 : 2000)) g = 4;
+  if (g === 3 && m === 'mc') g = 2;
+  S.cards[cid] = FSRS.review(before, g, t, S.settings.retention);
+  const first = !bt.tried[cid]; bt.tried[cid] = true;
+  let xp;
+  if (!before) { xp = g === 1 ? 1 : 5; S.newDay[dayKey()] = (S.newDay[dayKey()] || 0) + 1; }
+  else xp = g === 1 ? 1 : Math.round(10 * (1 + 2 * (1 - Rpre)) * (g === 2 ? 0.6 : 1));
+  if (!first) xp = Math.min(xp, 2);
+  addXP(xp); bt.xp += xp;
+  let dmg = 0;
+  if (g > 1) { dmg = !before ? 26 : Math.round(20 + 40 * (1 - Rpre)); if (g === 2) dmg = Math.round(dmg * 0.6); if (g === 4) dmg = Math.round(dmg * 1.1); bt.hp -= dmg; hitFx('foe', dmg); }
+  else { const hurt = bt.boss ? 22 : 18; bt.php -= hurt; hitFx('me', hurt); bt.retries[cid] = (bt.retries[cid] || 0) + 1; if (bt.retries[cid] <= 1) bt.q.splice(Math.min(bt.q.length, bt.i + 3), 0, cid); }
+  if (first) { S.log.push({ t, ok: g > 1 }); S.log = S.log.slice(-200); bt.n++; if (g > 1) bt.ok++; const k = dayKey(); S.doneDay[k] = (S.doneDay[k] || 0) + 1; bumpStreak(); }
+  Q().pending = Q().pending.filter(x => x !== cid);
+  bt.res = Object.assign({ input: raw || '', pick, xp, dmg }, res); bt.phase = 'show';
+  save(); renderBattle(); paintClock();
+  if (it.kind === 'w' && c.dir === 'p') say(it.es);
+}
+function bNext() {
+  if (bt.phase === 'intro') { bt.phase = 'ask'; return renderBattle(); }
+  if (bt.hp <= 0) return endBattle('win');
+  if (bt.php <= 0) return endBattle('lose');
+  bt.i++; if (bt.i >= bt.q.length) return endBattle('out');
+  bt.phase = 'ask'; bt.res = null; renderBattle();
+}
+function endBattle(how) {
+  const acc = bt.n ? bt.ok / bt.n : 0, T = town(); let title, body;
+  if (how === 'win') {
+    const bonus = bt.boss ? (T.boss.final ? 200 : 100) : 10; addXP(bonus); bt.xp += bonus;
+    title = bt.boss ? `¡${T.boss.name} cae!` : '¡Ganaste!';
+    body = bt.boss ? 'The way forward opens.' : 'The Olvido fades, and the words you recalled are stronger for it.';
+    if (bt.boss) setFlag('boss_' + T.boss.id);
+  } else if (how === 'lose') {
+    title = 'Te desmayas…'; body = 'You faint and wake up by the fountain. Nothing is lost: every miss already rescheduled that card to come back soon.';
+    player.x = T.spawn[0]; player.y = T.spawn[1]; player.px = player.x * TS; player.py = player.y * TS; player.d = 'down'; savePos();
+  } else if (how === 'flee') { title = 'Huiste.'; body = 'You slip away into the grass.'; }
+  else { title = `${bt.foe.name} se escapa.`; body = 'You ran out of cards before it ran out of strength. It fled anyway; the recalls still count.'; }
+  bt.phase = 'end';
+  bt.endHtml = `<p class="q-msg" lang="es">${esc(title)}</p><p class="q-sub">${esc(body)}</p>${bt.n ? `<div class="q-sum"><span><b class="num">${bt.n}</b> cards</span><span><b class="num">${Math.round(acc * 100)}%</b> first try</span><span><b class="num">+${bt.xp}</b> XP</span></div>` : ''}<div class="q-act"><span></span><button class="q-nx primary" id="qb-done">Continuar ▸</button></div>`;
+  save(); renderBattle();
+}
+function closeBattle() {
+  const won = bt.boss && beaten(Q().town); bt = null; qs('#q-battle').hidden = true; mode = 'walk';
+  render(); // refresh the header's XP, minutes and streak; the game itself is kept as it was
+  if (won) { const w = town().boss.win; runDialog([{ who: w.who, es: w.es, en: w.en }]); }
+}
+function hitFx(who, n) {
+  const fx = qs('#q-fx'); if (!fx) return;
+  const s = document.createElement('span'); s.className = 'q-pop ' + who; s.textContent = '−' + n; fx.appendChild(s);
+  if (who === 'foe') bt.shake = 10;
+  else { const w = qs('.q-bwrap'); if (w && !reducedMotion) { w.classList.remove('hurt'); void w.offsetWidth; w.classList.add('hurt'); } }
+}
+function drawFoe(t) {
+  const c = qs('#q-foe'); if (!c || !bt) return;
+  const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.clearRect(0, 0, 64, 64);
+  const [d1, d2, d3] = bt.foe.col; const sh = bt.shake ? (bt.shake-- % 2 ? 2 : -2) : 0; const bob = reducedMotion ? 0 : Math.round(Math.sin(t / 400) * 2);
+  g.globalAlpha = bt.hp <= 0 ? 0.35 : 1;
+  const O = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x + sh, y + bob, w, h); };
+  const circ = (x0, y0, r, col) => { for (let y = -r; y <= r; y++) { const w = Math.floor(Math.sqrt(r * r - y * y)); O(x0 - w, y0 + y, 2 * w, 1, col); } };
+  const eyes = (y, col = '#1b1030') => { O(26, y, 4, 5, col); O(35, y, 4, 5, col); };
+  g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(16, 56, 32, 4);
+  const s = bt.foe.shape;
+  if (s === 'mirror') { O(18, 6, 28, 46, '#3c4058'); O(21, 9, 22, 40, d2); O(23, 11, 4, 18, d3); O(28, 26, 3, 5, '#2a1a4a'); O(35, 26, 3, 5, '#2a1a4a'); O(28, 36, 10, 2, '#2a1a4a'); O(14, 20, 4, 14, '#3c4058'); O(46, 20, 4, 14, '#3c4058'); }
+  else if (s === 'wisp') { circ(32, 32, 17, d1); circ(32, 30, 13, d2); O(24, 46, 4, 8, d1); O(36, 46, 4, 10, d1); O(30, 48, 4, 6, d2); eyes(26); O(30, 36, 5, 2, '#1b1030'); }
+  else if (s === 'leaf') { circ(32, 34, 16, d1); circ(30, 31, 11, d2); O(31, 10, 2, 10, d1); O(33, 8, 8, 4, d2); O(25, 30, 4, 4, '#0f2a1e'); O(35, 30, 4, 4, '#0f2a1e'); O(29, 39, 7, 2, '#0f2a1e'); O(18, 44, 6, 3, d1); O(40, 44, 6, 3, d1); }
+  else if (s === 'knot') { for (let i = 0; i < 5; i++) { O(12 + i * 9, 10, 2, 42, d1); O(10, 12 + i * 9, 44, 2, d1); } circ(32, 32, 12, d2); eyes(27, '#14162a'); O(28, 37, 9, 2, '#14162a'); O(8, 20, 6, 3, d3); O(50, 40, 6, 3, d3); }
+  else if (s === 'cloud') { circ(22, 34, 12, d1); circ(42, 34, 12, d1); circ(32, 26, 14, d2); circ(32, 36, 13, d2); eyes(28, '#3a3f5c'); O(28, 38, 9, 2, '#3a3f5c'); for (let i = 0; i < 3; i++) O(10 + ((Math.floor(t / 150) + i * 13) % 44), 50 + i * 2, 8, 1, d3); }
+  else if (s === 'clock') { circ(32, 32, 20, d1); circ(32, 32, 16, d2); O(31, 18, 2, 15, d3); const a = t / 600; O(32 + Math.round(Math.cos(a) * 9) - 1, 32 + Math.round(Math.sin(a) * 9) - 1, 3, 3, d3); for (let i = 0; i < 12; i++) O(32 + Math.round(Math.cos(i / 12 * 6.283) * 14) - 1, 32 + Math.round(Math.sin(i / 12 * 6.283) * 14) - 1, 2, 2, d1); O(22, 50, 6, 6, d1); O(36, 50, 6, 6, d1); }
+  else if (s === 'maze') { O(10, 10, 44, 44, d1); for (let i = 0; i < 4; i++) { O(14 + i * 10, 14, 3, 36 - (i % 2) * 10, d2); O(14, 14 + i * 10, 30 - (i % 2) * 8, 3, d2); } eyes(30, '#0f2a1e'); }
+  else if (s === 'shifter') { const k = Math.sin(t / 300) * 3; circ(32, 34, 16 + Math.round(k), d1); circ(30 + Math.round(k), 31, 10, d2); O(20, 20 - Math.round(k), 6, 6, d3); O(40, 22 + Math.round(k), 5, 5, d3); eyes(30); O(29, 40, 7, 2, '#1b1030'); }
+  else if (s === 'giant') { circ(32, 36, 22, d1); circ(32, 32, 16, d2); O(14, 6, 6, 14, d1); O(44, 6, 6, 14, d1); O(24, 26, 6, 6, d3); O(35, 26, 6, 6, d3); O(25, 28, 3, 3, '#ff6b6b'); O(36, 28, 3, 3, '#ff6b6b'); O(26, 42, 13, 3, d3); }
+  else { circ(32, 36, 18, d1); circ(32, 34, 13, d2); O(25, 30, 5, 3, d3); O(35, 30, 5, 3, d3); O(28, 41, 9, 2, '#14162a'); O(14, 48, 36, 6, d1); }
+  g.globalAlpha = 1;
+  if (mode === 'battle') requestAnimationFrame(drawFoe);
+}
+
+// ---------- menu ----------
+let menuTab = 'quests';
+function openMenu() { mode = 'menu'; held = null; qs('#q-menu').hidden = false; renderMenu(); }
+function closeMenu() { mode = 'walk'; qs('#q-menu').hidden = true; hud(); }
+function renderMenu() {
+  const tabs = [['quests', 'Misiones'], ['map', 'Mapa'], ['memory', 'Memoria'], ['how', 'Cómo funciona']];
+  let body = '';
+  if (menuTab === 'quests') {
+    const T = town();
+    const rows = T.units.map(u => { const n = mentorOf(u), p = unitStarted(u); return [UNITS[u].es, `${n.name} · Unit ${u} (${UNITS[u].title})`, p, flag('met_' + n.id) || p > 0]; });
+    rows.push([T.boss.name, `Boss · mixes ${T.boss.focus.map(u => 'Unit ' + u).join(' and ')} with words from here`, beaten(T.i) ? 1 : 0, bossReady(T.i)]);
+    body = `<p class="q-tip">${esc(currentQuest())}</p><h4>Capítulo ${T.ch} · ${esc(T.name)}</h4><ul class="q-qlist">${rows.map(([t, s, p, on]) => `<li class="${on ? '' : 'off'}"><div><b>${esc(t)}</b><span>${esc(s)}</span></div><span class="q-hp q"><i style="width:${p * 100}%"></i></span><span class="num">${Math.round(p * 100)}%</span></li>`).join('')}</ul>
+    <p class="q-tip">Mentors teach the same units as the Path tab, in the same order. Anything you learn in the Cards tab counts here too, and the other way round.</p>`;
+  } else if (menuTab === 'map') {
+    body = `<ul class="q-qlist q-map">${TOWNS.map(T => { const open = unlocked(T.i), seen = flag('visit_' + T.id), here = T.i === Q().town; const done = T.units.filter(u => unitStarted(u) >= 0.6).length;
+      return `<li class="${open ? '' : 'off'}"><div><b>${T.ch}. ${esc(T.name)}${beaten(T.i) ? ' ✓' : ''}</b><span>Units ${T.units[0]}–${T.units[T.units.length - 1]} · ${done}/${T.units.length} units started${open ? '' : ' · locked'}</span></div>${here ? '<span class="q-here">Aquí</span>' : seen ? `<button class="q-nx" data-qtravel="${T.i}">Viajar</button>` : '<span></span>'}</li>`; }).join('')}</ul>
+    <p class="q-tip">Travel to any town you’ve visited. Each new town opens when you beat the boss of the one before it.</p>`;
+  } else if (menuTab === 'memory') {
+    const acc = recentAcc(); const learned = Object.values(ITEM).filter(it => st(primary(it).cid)).length; const m = memoryPct();
+    const pos = acc === null ? null : Math.max(0, Math.min(100, (acc - 0.5) / 0.5 * 100));
+    body = `<div class="q-stats"><p><b class="num">${learned}</b><span>of ${Object.keys(ITEM).length} items started</span></p><p><b class="num">${m === null ? '—' : Math.round(m * 100) + '%'}</b><span>predicted recall now</span></p><p><b class="num">${olvidos()}</b><span>Olvidos waiting</span></p><p><b class="num">${S.xp.toLocaleString()}</b><span>XP · level ${level()}</span></p></div>
+    <h4>Challenge level</h4><div class="q-meter"><div class="zone"></div>${pos !== null ? `<div class="pin" style="left:${pos}%"></div>` : ''}<div class="ticks"><span>50%</span><span>85% target</span><span>100%</span></div></div>
+    <p class="q-tip">${acc === null ? 'After a few more answers, mentors will tune how many new words they teach.' : `${Math.round(acc * 100)}% correct on your last 30 first tries. ${acc > 0.92 ? 'Mentors will teach more at once.' : acc >= 0.85 ? 'Right on target.' : acc >= 0.78 ? 'Mentors will teach a bit less for now.' : 'Mentors will hold back new words until you catch up.'}`}</p>`;
+  } else {
+    body = `<ul class="q-how">
+      <li><b>One memory for both.</b> Battles use the same cards and scheduler as the Cards tab. A battle is a review, and it counts toward your Cards minutes, XP and streak.</li>
+      <li><b>Mentors teach; the grass tests.</b> Each unit has a mentor. New words are shown once in dialogue, then recalled in battle a few steps later. A slightly delayed first test helps retention more than an immediate one.</li>
+      <li><b>Olvidos appear only when something is due.</b> You can’t grind easy wins; when the grass is quiet, your memory is in good shape.</li>
+      <li><b>Damage rewards hard recall.</b> A card you were likely to forget hits for up to 60; an easy one for 20. That mirrors where memory grows most.</li>
+      <li><b>Bosses interleave.</b> Each town’s boss alternates its grammar with vocabulary, because mixing similar forms trains you to tell them apart.</li>
+      <li><b>Dialogue is input.</b> Lines are in Spanish. The English hides itself once you know 95% of a line’s words. Tap any word for its meaning.</li>
+      <li><b>Losing costs nothing.</b> Missed cards just come back sooner.</li></ul>
+      <p class="q-tip">Controls: arrow keys or WASD to walk, Space or Enter to talk, M for this menu. On a phone, use the pad and the A button.</p>`;
+  }
+  qs('#q-menu').innerHTML = `<div class="q-win q-menuwin"><div class="q-mhead"><h3>Menú</h3><button class="q-nx" id="qm-close">Cerrar ✕</button></div><div class="q-mtabs">${tabs.map(([id, l]) => `<button data-qtab="${id}" class="${menuTab === id ? 'on' : ''}">${l}</button>`).join('')}</div><div class="q-mbody">${body}</div></div>`;
+}
+
+// ---------- events (scoped to the Quest root) ----------
+function onClick(e) {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.qsay) { say(b.dataset.qsay, !!b.dataset.qslow, b.dataset.qwho); return; }
+  if (b.dataset.qa) return interact();
+  if (b.dataset.qmenu) { if (mode === 'menu') closeMenu(); else if (mode === 'walk') openMenu(); return; }
+  if (b.id === 'q-dlg-next') return dlgNext();
+  if (b.dataset.qw !== undefined) { toast(`${b.dataset.qw.replace(/[¿?¡!.,]/g, '')}${b.dataset.qg ? ' = ' + b.dataset.qg : ''}`); say(b.dataset.qw.replace(/^[¿¡—→↓↗]+|[?!.,;:…]+$/g, '')); return; }
+  if (b.dataset.qch !== undefined && dlg) {
+    const p = dlg.pages[dlg.i]; const c = p.choice[+b.dataset.qch];
+    if (c.ok) { b.classList.add('ok'); p.choice = null; if (c.reply) dlg.pages.splice(dlg.i + 1, 0, { who: p.who, es: c.reply.es, en: c.reply.en }); setTimeout(dlgNext, 350); }
+    else { b.classList.add('no'); const tip = qs('#q-dlg-tip'); tip.hidden = false; tip.textContent = c.tip; }
+    return;
+  }
+  if (b.dataset.qopt !== undefined && bt && bt.phase === 'ask') return bAnswer('', +b.dataset.qopt);
+  if (b.id === 'qb-next') return bNext();
+  if (b.id === 'qb-idk') return bAnswer('', -1);
+  if (b.dataset.qacc) { const i = qs('#qb-in'); if (i) { const p = i.selectionStart ?? i.value.length; i.value = i.value.slice(0, p) + b.dataset.qacc + i.value.slice(i.selectionEnd ?? p); i.focus(); i.setSelectionRange(p + 1, p + 1); } return; }
+  if (b.id === 'qb-flee') return endBattle('flee');
+  if (b.id === 'qb-done') return closeBattle();
+  if (b.dataset.qtab) { menuTab = b.dataset.qtab; renderMenu(); return; }
+  if (b.id === 'qm-close') return closeMenu();
+  if (b.dataset.qtravel !== undefined) { closeMenu(); travel(+b.dataset.qtravel, null, true); toast(`Bienvenido a ${town().name}.`); return; }
+}
+function onSubmit(e) {
+  if (e.target.id === 'q-dlg-form') { e.preventDefault(); const r = onSubmitName(qs('#q-dlg-input').value); if (r === true) { dlg.pages[dlg.i].ask = false; dlgNext(); } else { const tip = qs('#q-dlg-tip'); tip.hidden = false; tip.textContent = r; } }
+  if (e.target.id === 'qb-form') { e.preventDefault(); if (bt && bt.phase === 'ask') bAnswer(qs('#qb-in').value, -1); }
+}
+function onInput() {}
+
+// ---------- mounting into the Quest tab ----------
+function mount(host) {
+  if (!host) return;
+  const first = !root; if (first) build();
+  host.appendChild(root);
+  if (mode === 'walk' && !player.moving) { if (!Q().pos) Q().pos = null; placePlayer(); }
+  if (bgTown !== Q().town) paintBg();
+  if (!flag('intro')) setFlag('visit_' + TOWNS[0].id);
+  hud();
+  if (!running) { running = true; last = performance.now(); requestAnimationFrame(frame); }
+  if (!flag('intro')) { setFlag('visit_' + TOWNS[0].id); setFlag('arrived_' + TOWNS[0].id); runDialog(TOWNS[0].arrive.concat(alreadyNote()).map(l => l.fn ? l : ({ who: TOWNS[0].name, en: l.en })).concat([{ fn: () => setFlag('intro') }])); }
+}
+// Someone who has studied in the course already gets told where their progress puts them.
+function alreadyNote() {
+  const done = UNITS.filter(u => unitStarted(u.n) >= 0.6).length;
+  return done ? [{ en: `Your cards come with you: you’ve already started ${done} ${done === 1 ? 'unit' : 'units'} in the course. Mentors skip lessons you’ve seen, and each town’s boss opens the road to the next one.` }] : [];
+}
+const busy = () => mode !== 'walk';
+return { mount, busy, TOWNS, mentorOf, unitStarted, debug: () => ({ mode, player, q: Q(), bt, startBattle, travel, interact, talk, setMode: m => { mode = m; } }) };
+})();
+
+window.senderoQuestDebug = QUEST.debug; // used by tools/smoke.js
 const h = (location.hash || '').slice(1); if (TABS.some(([id]) => id === h)) view = h;
 render();
 })();

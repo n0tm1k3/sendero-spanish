@@ -25,6 +25,7 @@ Sendero is a Spanish course for one adult English speaker (Latin American Spanis
 | `reading` / `Claude:` | Past-tense recognition for coverage, tap-to-gloss, today's story, word lookups, writing feedback. |
 | `play` | The daily grouping puzzle (`CATS`) and the 60-second speed round. |
 | `speak & write` | Shadowing rounds and writing prompts (`WRITE_PROMPTS`). |
+| `Sendero Quest` | The Quest tab: a pixel RPG on top of the same cards. `TOWNS` (maps, mentors, bosses, signs), then drawing, movement, dialogue, battles and the menu. |
 | `views`, `session`, `events` | Rendering and click handling. |
 
 ### Item kinds
@@ -45,6 +46,16 @@ D(id, '¿Dónde vives?', 'Where do you live?')                                  
 - **Anywhere else** (a local server, GitHub Pages, the installed offline app): `window.claude` is missing, so progress stays in the browser's localStorage and the Claude features show a message instead. The page then registers `sw.js` for offline use. Keep both paths working.
 - **Progress files** (`mergeState`) move progress between copies. If you add a field to the saved state `S`, add it to `DEFAULT()` and decide how `mergeState` combines it.
 - **Offline cache:** bump `VERSION` in `sw.js` whenever an audio file changes, or installed copies keep the old clips. New files the page needs offline go in `CORE` or `AUDIO` there.
+
+### Sendero Quest (the Quest tab)
+
+The game runs on the course's own cards: a battle is a review graded exactly like a session (`bAnswer` mirrors `answer`), so it updates `S.cards`, XP, the log, the streak and the Cards minutes. Its own state is `S.quest` (current town, position, flags, taught-but-untested cards, the learner's name).
+
+- **One town per few units, in course order.** Each unit has exactly one mentor (`npcs[].unit`). Each town has a boss whose `focus` lists the units whose grammar it interleaves with vocabulary; beating it opens the east gate (`>`).
+- **Maps are built in code** with `rect`, `at` and `house` on a 30×22 grid. The tile legend is at the top of `TOWNS`. Every character, sign, door, gate and patch of tall grass must be reachable on foot; check new maps for that.
+- **Ids are saved.** Flags are keyed by town, NPC and boss ids (`met_luz`, `boss_espejo`, `visit_puerto`). Don't rename them.
+- **Dialogue Spanish follows rule 3**, and should use words the learner has met by that unit. Unknown words are underlined and the English stays visible.
+- New units need a mentor in the right town; a new town goes at the end of `TOWNS` and gets the previous town's east gate.
 
 ## Checks
 
