@@ -3277,10 +3277,12 @@ function interact() {
 function onKey(e) {
   if (view !== 'quest' || sess || !root || !root.isConnected) return;
   const tag = e.target.tagName; if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  if (/^Arrow/.test(e.key)) e.preventDefault(); // arrows belong to the game in every mode, never to page scrolling
   if (mode === 'title') { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); startFromTitle(); } return; }
   if (mode === 'trans') return;
   if (mode === 'battle') {
     if (bt && bt.phase === 'show' && e.key === 'Enter' && e.target.id !== 'qb-next') { e.preventDefault(); bNext(); }
+    else if (bt && bt.phase === 'end' && e.key === 'Enter' && e.target.id !== 'qb-done') { e.preventDefault(); closeBattle(); }
     else if (bt && bt.phase === 'ask' && /^[1-9]$/.test(e.key)) { const b = root.querySelector(`[data-qopt="${+e.key - 1}"]`); if (b) b.click(); }
     return;
   }
@@ -3516,7 +3518,7 @@ function renderBattle() {
     panel = prompt + input + (done ? '' : itemsRow()) + fb;
   }
   B.innerHTML = `<div class="q-bwrap">${bars}${stage}<div class="q-bpanel q-win">${panel}</div></div>`;
-  const nb = qs('#qb-next'), inp = qs('#qb-in');
+  const nb = qs('#qb-next') || qs('#qb-done'), inp = qs('#qb-in');
   if (bt.phase === 'ask') {
     bt.t0 = now(); if (inp) inp.focus({ preventScroll: true });
     const c = CARD[bt.q[bt.i]];
